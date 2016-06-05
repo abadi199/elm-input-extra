@@ -1,9 +1,15 @@
-module Number exposing (input)
+module Number exposing (Model, init, input, update)
 
 {-| Number input
 
-# Html
+# Model
+@docs Model, init
+
+# View
 @docs input
+
+# Update
+@docs update
 -}
 
 import Html exposing (Attribute, Html)
@@ -17,15 +23,27 @@ import Json.Decode as Json exposing ((:=))
 
 
 type alias Options =
-    { maxLength : Maybe Int
+    { id : String
+    , maxLength : Maybe Int
     , maxValue : Maybe Int
     , minValue : Maybe Int
     }
 
 
+{-| (TEA) Model record
+-}
 type alias Model =
     { value : String
     , hasFocus : Bool
+    }
+
+
+{-| (TEA) Initial model constant
+-}
+init : Model
+init =
+    { value = ""
+    , hasFocus = False
     }
 
 
@@ -34,10 +52,6 @@ type alias Event =
     , ctrlKey : Bool
     , altKey : Bool
     }
-
-
-type alias Id =
-    String
 
 
 allowedKeyCodes : List Int
@@ -121,14 +135,14 @@ onKeyDown options model tagger =
         onWithOptions "keydown" eventOptions decoder
 
 
-{-| Number input
+{-| (TEA) View function
 -}
-input : Id -> Options -> (String -> String) -> List (Attribute Msg) -> Model -> Html Msg
-input id options formatter attributes model =
+input : Options -> List (Attribute Msg) -> Model -> Html Msg
+input options attributes model =
     Html.input
         (List.append attributes
-            [ Attributes.id id
-            , value (formatter model.value)
+            [ Attributes.id options.id
+            , value model.value
             , onKeyDown options model KeyDown
             , onInput OnInput
             , onFocus (OnFocus True)
@@ -138,6 +152,8 @@ input id options formatter attributes model =
         []
 
 
+{-| (TEA) Update function
+-}
 update : Msg -> Model -> Model
 update msg model =
     case msg of
@@ -172,17 +188,25 @@ main =
         view model =
             Html.form []
                 [ Html.p []
-                    [ input "NumberInput"
-                        { maxLength = Just 16, maxValue = Nothing, minValue = Nothing }
-                        formatter
-                        [ style [ ( "border", "1px solid #ccc" ), ( "padding", ".5rem" ) ] ]
+                    [ input
+                        { id = "NumberInput"
+                        , maxLength = Just 16
+                        , maxValue = Nothing
+                        , minValue = Nothing
+                        }
+                        [ style
+                            [ ( "border", "1px solid #ccc" )
+                            , ( "padding", ".5rem" )
+                            , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
+                            ]
+                        ]
                         model
                     , Html.text model.value
                     ]
                 ]
     in
         Html.beginnerProgram
-            { model = { value = "", hasFocus = False }
+            { model = init
             , update = update
             , view = view
             }
