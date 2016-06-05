@@ -1,4 +1,4 @@
-module Number exposing (Model, init, input, update)
+module Number exposing (Model, Options, init, input, update)
 
 {-| Number input
 
@@ -6,7 +6,7 @@ module Number exposing (Model, init, input, update)
 @docs Model, init
 
 # View
-@docs input
+@docs input, Options
 
 # Update
 @docs update
@@ -22,6 +22,12 @@ import String exposing (fromChar, slice)
 import Json.Decode as Json exposing ((:=))
 
 
+{-| Options of the input component
+`id` is the id of the HTML element.
+`maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+`maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
+`minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+-}
 type alias Options =
     { id : String
     , maxLength : Maybe Int
@@ -181,10 +187,6 @@ type Msg
 main : Program Never
 main =
     let
-        formatter s =
-            List.repeat (String.length s) '*'
-                |> String.fromList
-
         view model =
             Html.form []
                 [ Html.p []
