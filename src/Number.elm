@@ -17,16 +17,17 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
 import Html.App as Html
 import Html.Attributes as Attributes exposing (value)
-import Char exposing (fromCode, KeyCode)
-import String exposing (fromChar, slice)
+import Char
+import String
 import Json.Decode as Json exposing ((:=))
 
 
-{-| Options of the input component
-`id` is the id of the HTML element.
-`maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
-`maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
-`minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+{-| Options of the input component.
+
+ * `id` is the id of the HTML element.
+ * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
+ * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
 -}
 type alias Options =
     { id : String
@@ -170,16 +171,20 @@ update msg model =
             model
 
         OnInput newValue ->
-            { model | value = newValue }
+            { model | value = newValue |> filterNonDigit }
 
-        -- { model | value = model.value ++ String.right 1 newValue }
         OnFocus hasFocus ->
             { model | hasFocus = hasFocus }
 
 
+filterNonDigit : String -> String
+filterNonDigit value =
+    value |> String.toList |> List.filter Char.isDigit |> String.fromList
+
+
 type Msg
     = NoOp
-    | KeyDown KeyCode
+    | KeyDown Char.KeyCode
     | OnInput String
     | OnFocus Bool
 
