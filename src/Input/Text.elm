@@ -19,6 +19,10 @@ import Html exposing (Attribute, Html)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
 import Html.Attributes as Attributes exposing (value, id, type')
 import Char exposing (fromCode, KeyCode)
+import String
+import Json.Decode as Json
+import Input.Decoder exposing (eventDecoder)
+import Input.KeyCode exposing (allowedKeyCodes)
 
 
 {-| Options of the input component.
@@ -73,7 +77,8 @@ input options attributes model =
         (List.append attributes
             [ id options.id
             , value model.value
-            , onInput OnInput
+            , onKeyDown options model KeyDown
+            , onInput (OnInput options)
             , onFocus (OnFocus True)
             , onBlur (OnFocus False)
             , type' "text"
@@ -93,8 +98,11 @@ update msg model =
         KeyDown _ ->
             model
 
-        OnInput newValue ->
-            { model | value = newValue }
+        OnInput options newValue ->
+            if isValid newValue options then
+                { model | value = newValue }
+            else
+                model
 
         OnFocus hasFocus ->
             { model | hasFocus = hasFocus }
@@ -105,5 +113,49 @@ update msg model =
 type Msg
     = NoOp
     | KeyDown KeyCode
-    | OnInput String
+    | OnInput Options String
     | OnFocus Bool
+
+
+onKeyDown : Options -> Model -> (Int -> msg) -> Attribute msg
+onKeyDown options model tagger =
+    let
+        eventOptions =
+            { stopPropagation = False
+            , preventDefault = True
+            }
+
+        filterKey =
+            (\event ->
+                let
+                    newValue =
+                        (model.value ++ (event.keyCode |> Char.fromCode |> String.fromChar))
+                in
+                    if event.ctrlKey || event.altKey then
+                        Err "modifier key is pressed"
+                    else if List.any ((==) event.keyCode) allowedKeyCodes then
+                        Err "not arrow"
+                    else if (isValid newValue options) then
+                        Err "valid"
+                    else
+                        Ok event.keyCode
+            )
+
+        decoder =
+            filterKey
+                |> Json.customDecoder eventDecoder
+                |> Json.map tagger
+    in
+        onWithOptions "keydown" eventOptions decoder
+
+
+isValid : String -> Options -> Bool
+isValid value options =
+    let
+        exceedMaxLength =
+            options.maxLength
+                |> Maybe.map ((<=) (String.length value))
+                |> Maybe.map not
+                |> Maybe.withDefault False
+    in
+        not exceedMaxLength

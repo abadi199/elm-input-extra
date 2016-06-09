@@ -29,12 +29,15 @@ init =
     { numberModel = Number.init
     , numberOptions =
         { id = "NumberInput"
-        , maxLength = Just 16
+        , maxLength = Just 4
         , maxValue = Nothing
         , minValue = Nothing
         }
     , textModel = Text.init
-    , textOptions = Text.defaultOptions "TextInput"
+    , textOptions =
+        { id = "TextInput"
+        , maxLength = Just 4
+        }
     }
 
 

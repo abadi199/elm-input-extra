@@ -22,6 +22,8 @@ import Html.Attributes as Attributes exposing (value)
 import Char
 import String
 import Json.Decode as Json exposing ((:=))
+import Input.Decoder exposing (eventDecoder)
+import Input.KeyCode exposing (allowedKeyCodes)
 
 
 {-| Options of the input component.
@@ -72,27 +74,59 @@ init =
     }
 
 
-type alias Event =
-    { keyCode : Int
-    , ctrlKey : Bool
-    , altKey : Bool
-    }
+{-| (TEA) View function
+-}
+input : Options -> List (Attribute Msg) -> Model -> Html Msg
+input options attributes model =
+    Html.input
+        (List.append attributes
+            [ Attributes.id options.id
+            , value model.value
+            , onKeyDown options model KeyDown
+            , onInput OnInput
+            , onFocus (OnFocus True)
+            , onBlur (OnFocus False)
+            , type' "number"
+            ]
+        )
+        []
 
 
-allowedKeyCodes : List Int
-allowedKeyCodes =
-    [ 37, 39, 8, 17, 18, 46, 9, 13 ]
+{-| (TEA) Update function
+-}
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        NoOp ->
+            model
+
+        KeyDown keyCode ->
+            model
+
+        OnInput newValue ->
+            { model | value = newValue |> filterNonDigit }
+
+        OnFocus hasFocus ->
+            { model | hasFocus = hasFocus }
+
+
+filterNonDigit : String -> String
+filterNonDigit value =
+    value |> String.toList |> List.filter Char.isDigit |> String.fromList
+
+
+{-| (TEA) Opaque Msg types
+-}
+type Msg
+    = NoOp
+    | KeyDown Char.KeyCode
+    | OnInput String
+    | OnFocus Bool
 
 
 onKeyDown : Options -> Model -> (Int -> msg) -> Attribute msg
 onKeyDown options model tagger =
     let
-        eventDecoder =
-            Json.object3 Event
-                ("keyCode" := Json.int)
-                ("ctrlKey" := Json.bool)
-                ("altKey" := Json.bool)
-
         eventOptions =
             { stopPropagation = False
             , preventDefault = True
@@ -158,53 +192,3 @@ onKeyDown options model tagger =
                 |> Json.map tagger
     in
         onWithOptions "keydown" eventOptions decoder
-
-
-{-| (TEA) View function
--}
-input : Options -> List (Attribute Msg) -> Model -> Html Msg
-input options attributes model =
-    Html.input
-        (List.append attributes
-            [ Attributes.id options.id
-            , value model.value
-            , onKeyDown options model KeyDown
-            , onInput OnInput
-            , onFocus (OnFocus True)
-            , onBlur (OnFocus False)
-            , type' "number"
-            ]
-        )
-        []
-
-
-{-| (TEA) Update function
--}
-update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        NoOp ->
-            model
-
-        KeyDown keyCode ->
-            model
-
-        OnInput newValue ->
-            { model | value = newValue |> filterNonDigit }
-
-        OnFocus hasFocus ->
-            { model | hasFocus = hasFocus }
-
-
-filterNonDigit : String -> String
-filterNonDigit value =
-    value |> String.toList |> List.filter Char.isDigit |> String.fromList
-
-
-{-| (TEA) Opaque Msg types
--}
-type Msg
-    = NoOp
-    | KeyDown Char.KeyCode
-    | OnInput String
-    | OnFocus Bool
