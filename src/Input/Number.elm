@@ -1,4 +1,4 @@
-module Number exposing (Model, Options, init, input, update)
+module Input.Number exposing (Model, Options, Msg, init, input, update, defaultOptions)
 
 {-| Number input
 
@@ -6,16 +6,18 @@ module Number exposing (Model, Options, init, input, update)
 @docs Model, init
 
 # View
-@docs input, Options
+@docs input, Options, defaultOptions
 
 # Update
 @docs update
+
+# Msg
+@docs Msg
 -}
 
 import Html exposing (Attribute, Html)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (style, type')
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
-import Html.App as Html
 import Html.Attributes as Attributes exposing (value)
 import Char
 import String
@@ -37,7 +39,23 @@ type alias Options =
     }
 
 
+{-| Default value for `Options`.
+Params:
+ * `id` (type: `String`) : The `id` of the number input element.
+-}
+defaultOptions : String -> Options
+defaultOptions id =
+    { id = id
+    , maxLength = Nothing
+    , maxValue = Nothing
+    , minValue = Nothing
+    }
+
+
 {-| (TEA) Model record
+Fields:
+ * `value` : current value of the input element.
+ * `hasFocus` : flag whether the input element has focus or not.
 -}
 type alias Model =
     { value : String
@@ -154,6 +172,7 @@ input options attributes model =
             , onInput OnInput
             , onFocus (OnFocus True)
             , onBlur (OnFocus False)
+            , type' "number"
             ]
         )
         []
@@ -182,38 +201,10 @@ filterNonDigit value =
     value |> String.toList |> List.filter Char.isDigit |> String.fromList
 
 
+{-| (TEA) Opaque Msg types
+-}
 type Msg
     = NoOp
     | KeyDown Char.KeyCode
     | OnInput String
     | OnFocus Bool
-
-
-main : Program Never
-main =
-    let
-        view model =
-            Html.form []
-                [ Html.p []
-                    [ input
-                        { id = "NumberInput"
-                        , maxLength = Just 16
-                        , maxValue = Nothing
-                        , minValue = Nothing
-                        }
-                        [ style
-                            [ ( "border", "1px solid #ccc" )
-                            , ( "padding", ".5rem" )
-                            , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
-                            ]
-                        ]
-                        model
-                    , Html.text model.value
-                    ]
-                ]
-    in
-        Html.beginnerProgram
-            { model = init
-            , update = update
-            , view = view
-            }
