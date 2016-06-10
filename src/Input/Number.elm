@@ -44,6 +44,13 @@ type alias Options =
 {-| Default value for `Options`.
 Params:
  * `id` (type: `String`) : The `id` of the number input element.
+
+Value:
+    { id = id
+    , maxLength = Nothing
+    , maxValue = Nothing
+    , minValue = Nothing
+    }
 -}
 defaultOptions : String -> Options
 defaultOptions id =
@@ -66,6 +73,11 @@ type alias Model =
 
 
 {-| (TEA) Initial model constant
+
+Value:
+    { value = ""
+    , hasFocus = False
+    }
 -}
 init : Model
 init =
@@ -75,6 +87,20 @@ init =
 
 
 {-| (TEA) View function
+
+Example:
+
+    Input.Number.input
+        { id = "NumberInput"
+        , maxLength = Just 4
+        , maxValue = Nothing
+        , minValue = Nothing
+        }
+        [ class "numberInput"
+        ...
+        ]
+        model.numberModel
+
 -}
 input : Options -> List (Attribute Msg) -> Model -> Html Msg
 input options attributes model =
@@ -93,6 +119,16 @@ input options attributes model =
 
 
 {-| (TEA) Update function
+
+Example:
+
+    type Msg = UpdateNumber Input.Number.Msg
+
+    update msg model =
+        case msg of
+            UpdateNumber numberMsg ->
+                { model | numberModel = Input.Number.update numberMsg model.numberModel }
+
 -}
 update : Msg -> Model -> Model
 update msg model =

@@ -29,8 +29,6 @@ import Input.KeyCode exposing (allowedKeyCodes)
 
  * `id` is the id of the HTML element.
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
- * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
- * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
 -}
 type alias Options =
     { id : String
@@ -41,6 +39,11 @@ type alias Options =
 {-| Default value for `Options`.
 Params:
  * `id` (type: `String`) : The `id` of the number input element.
+
+Value:
+    { id = id
+    , maxLength = Nothing
+    }
 -}
 defaultOptions : String -> Options
 defaultOptions id =
@@ -61,6 +64,11 @@ type alias Model =
 
 
 {-| (TEA) Initial model constant
+
+Value:
+    { value = ""
+    , hasFocus = False
+    }
 -}
 init : Model
 init =
@@ -70,6 +78,18 @@ init =
 
 
 {-| (TEA) View function
+
+Example:
+
+    Input.Text.input
+        { id = "TextInput"
+        , maxLength = Just 4
+        }
+        [ class "textInput"
+        ...
+        ]
+        model.textModel
+
 -}
 input : Options -> List (Attribute Msg) -> Model -> Html Msg
 input options attributes model =
@@ -88,6 +108,16 @@ input options attributes model =
 
 
 {-| (TEA) Update function
+
+Example:
+
+    type Msg = UpdateText Input.Text.Msg
+
+    update msg model =
+        case msg of
+            UpdateText textMsg ->
+                { model | textModel = Input.Text.update textMsg model.textModel }
+
 -}
 update : Msg -> Model -> Model
 update msg model =
