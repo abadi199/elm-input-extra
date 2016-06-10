@@ -46,11 +46,13 @@ Params:
  * `id` (type: `String`) : The `id` of the number input element.
 
 Value:
+
     { id = id
     , maxLength = Nothing
     , maxValue = Nothing
     , minValue = Nothing
     }
+
 -}
 defaultOptions : String -> Options
 defaultOptions id =
@@ -75,9 +77,11 @@ type alias Model =
 {-| (TEA) Initial model constant
 
 Value:
+
     { value = ""
     , hasFocus = False
     }
+
 -}
 init : Model
 init =
