@@ -68,7 +68,7 @@ view model =
                 ]
                 model.textModel
                 |> Html.map UpdateText
-            , Html.text ("value: " ++ model.numberModel.value)
+            , Html.text ("value: " ++ model.textModel.value)
             ]
         ]
 

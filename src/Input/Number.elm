@@ -83,7 +83,7 @@ input options attributes model =
             [ Attributes.id options.id
             , value model.value
             , onKeyDown options model KeyDown
-            , onInput OnInput
+            , onInput (OnInput options)
             , onFocus (OnFocus True)
             , onBlur (OnFocus False)
             , type' "number"
@@ -103,8 +103,11 @@ update msg model =
         KeyDown keyCode ->
             model
 
-        OnInput newValue ->
-            { model | value = newValue |> filterNonDigit }
+        OnInput options newValue ->
+            if isValid newValue options then
+                { model | value = newValue |> filterNonDigit }
+            else
+                model
 
         OnFocus hasFocus ->
             { model | hasFocus = hasFocus }
@@ -120,7 +123,7 @@ filterNonDigit value =
 type Msg
     = NoOp
     | KeyDown Char.KeyCode
-    | OnInput String
+    | OnInput Options String
     | OnFocus Bool
 
 
@@ -132,30 +135,16 @@ onKeyDown options model tagger =
             , preventDefault = True
             }
 
-        updatedNumber keyCode =
+        newValue keyCode =
             keyCode
                 |> Char.fromCode
                 |> String.fromChar
                 |> (++) model.value
+
+        updatedNumber keyCode =
+            newValue keyCode
                 |> String.toInt
                 |> Result.toMaybe
-
-        exceedMaxValue keyCode =
-            keyCode
-                |> updatedNumber
-                |> Maybe.map2 (\max number -> number > max) options.maxValue
-                |> Maybe.withDefault False
-
-        lessThanMinValue keyCode =
-            keyCode
-                |> updatedNumber
-                |> Maybe.map2 (\min number -> number < min) options.minValue
-                |> Maybe.withDefault False
-
-        exceedMaxLength =
-            options.maxLength
-                |> Maybe.map ((>=) (String.length model.value))
-                |> Maybe.withDefault True
 
         isNumPad keyCode =
             keyCode
@@ -174,12 +163,10 @@ onKeyDown options model tagger =
                 if event.ctrlKey || event.altKey then
                     Err "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Err "not arrow"
+                    Err "allowedKeys"
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
-                        && not exceedMaxLength
-                        && not (exceedMaxValue event.keyCode)
-                        && not (lessThanMinValue event.keyCode)
+                        && isValid (newValue event.keyCode) options
                 then
                     Err "numeric"
                 else
@@ -192,3 +179,32 @@ onKeyDown options model tagger =
                 |> Json.map tagger
     in
         onWithOptions "keydown" eventOptions decoder
+
+
+isValid : String -> Options -> Bool
+isValid newValue options =
+    let
+        updatedNumber =
+            newValue
+                |> String.toInt
+                |> Result.toMaybe
+
+        exceedMaxValue =
+            updatedNumber
+                |> Maybe.map2 (\max number -> number > max) options.maxValue
+                |> Maybe.withDefault False
+
+        lessThanMinValue =
+            updatedNumber
+                |> Maybe.map2 (\min number -> number < min) options.minValue
+                |> Maybe.withDefault False
+
+        exceedMaxLength =
+            options.maxLength
+                |> Maybe.map (\maxLength -> maxLength >= (String.length newValue))
+                |> Maybe.map not
+                |> Maybe.withDefault True
+    in
+        not exceedMaxLength
+            && not (exceedMaxValue)
+            && not (lessThanMinValue)
