@@ -243,7 +243,7 @@ isValid newValue options =
             options.maxLength
                 |> Maybe.map (\maxLength -> maxLength >= (String.length newValue))
                 |> Maybe.map not
-                |> Maybe.withDefault True
+                |> Maybe.withDefault False
     in
         not exceedMaxLength
             && not (exceedMaxValue)

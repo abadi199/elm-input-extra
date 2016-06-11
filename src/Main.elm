@@ -29,7 +29,7 @@ init =
     { numberModel = Number.init
     , numberOptions =
         { id = "NumberInput"
-        , maxLength = Just 4
+        , maxLength = Nothing
         , maxValue = Nothing
         , minValue = Nothing
         }
