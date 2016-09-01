@@ -200,7 +200,7 @@ onKeyDown options model tagger =
 
         filterKey =
             (\event ->
-                if event.ctrlKey || event.altKey then
+                if event.ctrlKey || event.altKey || event.metaKey then
                     Err "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
                     Err "allowedKeys"
