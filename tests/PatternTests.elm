@@ -28,7 +28,7 @@ all =
     describe "Pattern Test Suite"
         [ parseTests
         , formatTests
-        , valueTests
+        , extractTests
         ]
 
 
@@ -72,11 +72,28 @@ formatTests =
         ]
 
 
-valueTests : Test
-valueTests =
-    describe "Pattern.value"
-        [ test "" <|
+extractTests : Test
+extractTests =
+    describe "Pattern.extract"
+        [ test "for parens pattern will extract the right value" <|
             \() ->
-                Pattern.value parensPattern "(123)"
-                    |> Expect.equal "123"
+                Pattern.extract parensPattern "(123)"
+                    |> Expect.equal (Result.Ok "123")
+        , test "for phone pattern will extract the right value" <|
+            \() ->
+                Pattern.extract phonePattern "(314) 555-1234"
+                    |> Expect.equal (Result.Ok "3145551234")
+        , test "for incomplete phone pattern will extract the right value" <|
+            \() ->
+                Pattern.extract phonePattern "(314) 555"
+                    |> Expect.equal (Result.Ok "314555")
+        , test "for longer phone pattern will extract the right value ignoring the rest of the input" <|
+            \() ->
+                Pattern.extract phonePattern "(314) 555-1234xxx"
+                    |> Expect.equal (Result.Ok "3145551234")
+        , test "for phone pattern with wrong input will return an error" <|
+            \() ->
+                Pattern.extract phonePattern "12/12/2019"
+                    |> Result.toMaybe
+                    |> Expect.equal Nothing
         ]
