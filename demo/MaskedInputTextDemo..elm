@@ -36,7 +36,7 @@ inputOptions =
             MaskedText.defaultOptions InputChanged
     in
         { defaultOptions
-            | maxLength = Just 5
+            | pattern = "##/##/####"
             , hasFocus = Just FocusChanged
         }
 
@@ -69,7 +69,7 @@ view model =
                     model.value
                 ]
             ]
-        , p [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
+        , p [] [ text "Pattern: ", text inputOptions.pattern ]
         , p [] [ text "Value: ", text model.value ]
         , p [] [ text "Has Focus: ", text <| toString model.hasFocus ]
         ]

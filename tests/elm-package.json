@@ -1,0 +1,20 @@
+{
+    "version": "1.0.0",
+    "summary": "Test for Elm Input Extra",
+    "repository": "https://github.com/abadi199/elm-input-extra.git",
+    "license": "MIT",
+    "source-directories": [
+        ".",
+        "../src"
+    ],
+    "exposed-modules": [],
+    "dependencies": {
+        "avh4/elm-diff": "1.0.7 <= v < 2.0.0",
+        "elm-community/elm-test": "2.0.0 <= v < 3.0.0",
+        "elm-community/list-extra": "3.1.0 <= v < 4.0.0",
+        "elm-lang/core": "4.0.5 <= v < 5.0.0",
+        "elm-lang/html": "1.0.0 <= v < 2.0.0",
+        "rtfeldman/node-test-runner": "2.0.0 <= v < 3.0.0"
+    },
+    "elm-version": "0.17.0 <= v < 0.18.0"
+}

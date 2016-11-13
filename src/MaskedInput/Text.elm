@@ -14,6 +14,7 @@ import String
 import Json.Decode as Json
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
+import MaskedInput.Pattern as Pattern
 
 
 {-| Options of the input component.
@@ -23,7 +24,8 @@ import Input.KeyCode exposing (allowedKeyCodes)
  * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
 type alias Options msg =
-    { maxLength : Maybe Int
+    { pattern : String
+    , inputCharacter : Char
     , onInput : String -> msg
     , hasFocus : Maybe (Bool -> msg)
     }
@@ -42,7 +44,8 @@ Value:
 -}
 defaultOptions : (String -> msg) -> Options msg
 defaultOptions onInput =
-    { maxLength = Nothing
+    { pattern = ""
+    , inputCharacter = '#'
     , onInput = onInput
     , hasFocus = Nothing
     }
@@ -65,6 +68,9 @@ Example:
 input : Options msg -> List (Attribute msg) -> String -> Html msg
 input options attributes currentValue =
     let
+        tokens =
+            Pattern.parse options.inputCharacter options.pattern
+
         onFocusAttribute =
             options.hasFocus
                 |> Maybe.map (\f -> f True)
@@ -78,12 +84,15 @@ input options attributes currentValue =
                 |> Maybe.map onBlur
                 |> Maybe.map (flip (::) [])
                 |> Maybe.withDefault []
+
+        currentFormattedValue =
+            (Pattern.format tokens currentValue)
     in
         Html.input
             ((List.append attributes
-                [ value currentValue
-                , onKeyDown options currentValue options.onInput
-                , onInput options.onInput
+                [ value currentFormattedValue
+                , onKeyDown currentFormattedValue tokens options.onInput
+                , onInput (processInput options tokens currentFormattedValue)
                 , type' "text"
                 ]
              )
@@ -93,8 +102,17 @@ input options attributes currentValue =
             []
 
 
-onKeyDown : Options msg -> String -> (String -> msg) -> Attribute msg
-onKeyDown options currentValue tagger =
+processInput : Options msg -> List Pattern.Token -> String -> String -> msg
+processInput options tokens oldValue value =
+    let
+        _ =
+            Debug.log "oldValue" oldValue
+    in
+        Pattern.extract tokens (Debug.log "newValue" value) |> options.onInput
+
+
+onKeyDown : String -> List Pattern.Token -> (String -> msg) -> Attribute msg
+onKeyDown currentValue tokens tagger =
     let
         eventOptions =
             { stopPropagation = False
@@ -111,7 +129,7 @@ onKeyDown options currentValue tagger =
                         Err "modifier key is pressed"
                     else if List.any ((==) event.keyCode) allowedKeyCodes then
                         Err "not arrow"
-                    else if (isValid newValue options) then
+                    else if (isValid newValue tokens) then
                         Err "valid"
                     else
                         Ok event.keyCode
@@ -125,13 +143,6 @@ onKeyDown options currentValue tagger =
         onWithOptions "keydown" eventOptions decoder
 
 
-isValid : String -> Options msg -> Bool
-isValid value options =
-    let
-        exceedMaxLength =
-            options.maxLength
-                |> Maybe.map ((<=) (String.length value))
-                |> Maybe.map not
-                |> Maybe.withDefault False
-    in
-        not exceedMaxLength
+isValid : String -> List Pattern.Token -> Bool
+isValid value tokens =
+    Pattern.isValid (Debug.log "value" value) tokens |> Debug.log "isValid"
