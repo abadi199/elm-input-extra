@@ -1,23 +1,14 @@
-module Input.Number exposing (Model, Options, Msg, init, input, update, defaultOptions)
+module Input.Number exposing (Options, input, defaultOptions)
 
 {-| Number input
 
-# Model
-@docs Model, init
-
 # View
 @docs input, Options, defaultOptions
-
-# Update
-@docs update
-
-# Msg
-@docs Msg
 -}
 
 import Html exposing (Attribute, Html)
 import Html.Attributes exposing (style, type')
-import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
+import Html.Events exposing (onWithOptions, keyCode)
 import Html.Attributes as Attributes exposing (value)
 import Char
 import String
@@ -33,11 +24,12 @@ import Input.KeyCode exposing (allowedKeyCodes)
  * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
  * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
 -}
-type alias Options =
-    { id : String
-    , maxLength : Maybe Int
+type alias Options msg =
+    { maxLength : Maybe Int
     , maxValue : Maybe Int
     , minValue : Maybe Int
+    , onInput : Maybe Int -> msg
+    , hasFocus : Maybe (Bool -> msg)
     }
 
 
@@ -54,39 +46,13 @@ Value:
     }
 
 -}
-defaultOptions : String -> Options
-defaultOptions id =
-    { id = id
+defaultOptions : (Maybe Int -> msg) -> Options msg
+defaultOptions onInput =
+    { onInput = onInput
     , maxLength = Nothing
     , maxValue = Nothing
     , minValue = Nothing
-    }
-
-
-{-| (TEA) Model record
-Fields:
- * `value` : current value of the input element.
- * `hasFocus` : flag whether the input element has focus or not.
--}
-type alias Model =
-    { value : String
-    , hasFocus : Bool
-    }
-
-
-{-| (TEA) Initial model constant
-
-Value:
-
-    { value = ""
-    , hasFocus = False
-    }
-
--}
-init : Model
-init =
-    { value = ""
-    , hasFocus = False
+    , hasFocus = Nothing
     }
 
 
@@ -106,51 +72,55 @@ Example:
         model.numberModel
 
 -}
-input : Options -> List (Attribute Msg) -> Model -> Html Msg
-input options attributes model =
-    Html.input
-        (List.append attributes
-            [ Attributes.id options.id
-            , value model.value
-            , onKeyDown options model KeyDown
-            , onInput (OnInput options)
-            , onFocus (OnFocus True)
-            , onBlur (OnFocus False)
-            , type' "number"
-            ]
-        )
-        []
+input : Options msg -> List (Attribute msg) -> Maybe Int -> Html msg
+input options attributes currentValue =
+    let
+        toArray =
+            flip (::) []
 
+        onFocusAttribute =
+            options.hasFocus
+                |> Maybe.map (\f -> f True)
+                |> Maybe.map Html.Events.onFocus
+                |> Maybe.map toArray
+                |> Maybe.withDefault []
 
-{-| (TEA) Update function
+        onBlurAttribute =
+            options.hasFocus
+                |> Maybe.map (\f -> f False)
+                |> Maybe.map Html.Events.onBlur
+                |> Maybe.map toArray
+                |> Maybe.withDefault []
 
-Example:
+        maxAttribute =
+            options.maxValue
+                |> Maybe.map toString
+                |> Maybe.map Html.Attributes.max
+                |> Maybe.map toArray
+                |> Maybe.withDefault []
 
-    type Msg = UpdateNumber Input.Number.Msg
-
-    update msg model =
-        case msg of
-            UpdateNumber numberMsg ->
-                { model | numberModel = Input.Number.update numberMsg model.numberModel }
-
--}
-update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        NoOp ->
-            model
-
-        KeyDown keyCode ->
-            model
-
-        OnInput options newValue ->
-            if isValid newValue options then
-                { model | value = newValue |> filterNonDigit }
-            else
-                model
-
-        OnFocus hasFocus ->
-            { model | hasFocus = hasFocus }
+        minAttribute =
+            options.minValue
+                |> Maybe.map toString
+                |> Maybe.map Html.Attributes.min
+                |> Maybe.map toArray
+                |> Maybe.withDefault []
+    in
+        Html.input
+            ((List.append attributes
+                [ value <| Maybe.withDefault "" <| Maybe.map toString <| currentValue
+                , onKeyDown options currentValue
+                , Html.Events.onInput (String.toInt >> Result.toMaybe >> options.onInput)
+                , onChange options
+                , type' "number"
+                ]
+             )
+                |> List.append onFocusAttribute
+                |> List.append onBlurAttribute
+                |> List.append maxAttribute
+                |> List.append minAttribute
+            )
+            []
 
 
 filterNonDigit : String -> String
@@ -158,17 +128,8 @@ filterNonDigit value =
     value |> String.toList |> List.filter Char.isDigit |> String.fromList
 
 
-{-| (TEA) Opaque Msg types
--}
-type Msg
-    = NoOp
-    | KeyDown Char.KeyCode
-    | OnInput Options String
-    | OnFocus Bool
-
-
-onKeyDown : Options -> Model -> (Int -> msg) -> Attribute msg
-onKeyDown options model tagger =
+onKeyDown : Options msg -> Maybe Int -> Attribute msg
+onKeyDown options currentValue =
     let
         eventOptions =
             { stopPropagation = False
@@ -179,7 +140,7 @@ onKeyDown options model tagger =
             keyCode
                 |> Char.fromCode
                 |> String.fromChar
-                |> (++) model.value
+                |> (++) (Maybe.withDefault "" <| Maybe.map toString <| currentValue)
 
         updatedNumber keyCode =
             newValue keyCode
@@ -216,35 +177,65 @@ onKeyDown options model tagger =
         decoder =
             filterKey
                 |> Json.customDecoder eventDecoder
-                |> Json.map tagger
+                |> Json.map (\_ -> options.onInput currentValue)
     in
         onWithOptions "keydown" eventOptions decoder
 
 
-isValid : String -> Options -> Bool
+isValid : String -> Options msg -> Bool
 isValid newValue options =
     let
         updatedNumber =
             newValue
                 |> String.toInt
                 |> Result.toMaybe
-
-        exceedMaxValue =
-            updatedNumber
-                |> Maybe.map2 (\max number -> number > max) options.maxValue
-                |> Maybe.withDefault False
-
-        lessThanMinValue =
-            updatedNumber
-                |> Maybe.map2 (\min number -> number < min) options.minValue
-                |> Maybe.withDefault False
-
-        exceedMaxLength =
-            options.maxLength
-                |> Maybe.map (\maxLength -> maxLength >= (String.length newValue))
-                |> Maybe.map not
-                |> Maybe.withDefault False
     in
-        not exceedMaxLength
-            && not (exceedMaxValue)
-            && not (lessThanMinValue)
+        not (exceedMaxLength options newValue)
+            && not (exceedMaxValue options updatedNumber)
+
+
+onChange : Options msg -> Html.Attribute msg
+onChange options =
+    let
+        checkWithMinValue number =
+            if lessThanMinValue options number then
+                options.minValue
+            else
+                number
+
+        checkWithMaxValue number =
+            if exceedMaxValue options number then
+                options.maxValue
+            else
+                number
+
+        toInt string =
+            string
+                |> String.toInt
+                |> Result.toMaybe
+                |> checkWithMinValue
+                |> checkWithMaxValue
+    in
+        Html.Events.on "change" (Json.map (toInt >> options.onInput) Html.Events.targetValue)
+
+
+lessThanMinValue : Options msg -> Maybe Int -> Bool
+lessThanMinValue options number =
+    number
+        |> Maybe.map2 (\min number -> number < min) options.minValue
+        |> Maybe.withDefault False
+
+
+exceedMaxValue : Options msg -> Maybe Int -> Bool
+exceedMaxValue options number =
+    number
+        |> Maybe.map2 (\max number -> number > max) options.maxValue
+        |> Maybe.withDefault False
+
+
+exceedMaxLength : Options msg -> String -> Bool
+exceedMaxLength options value =
+    options.maxLength
+        |> Maybe.map (\maxLength -> maxLength >= (String.length value))
+        |> Maybe.map not
+        |> Maybe.withDefault False

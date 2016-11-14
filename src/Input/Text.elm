@@ -1,18 +1,9 @@
-module Input.Text exposing (Model, Options, Msg, init, input, update, defaultOptions)
+module Input.Text exposing (Options, input, defaultOptions)
 
 {-| Text input
 
-# Model
-@docs Model, init
-
 # View
 @docs input, Options, defaultOptions
-
-# Update
-@docs update
-
-# Msg
-@docs Msg
 -}
 
 import Html exposing (Attribute, Html)
@@ -27,61 +18,37 @@ import Input.KeyCode exposing (allowedKeyCodes)
 
 {-| Options of the input component.
 
- * `id` is the id of the HTML element.
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
-type alias Options =
-    { id : String
-    , maxLength : Maybe Int
+type alias Options msg =
+    { maxLength : Maybe Int
+    , onInput : String -> msg
+    , hasFocus : Maybe (Bool -> msg)
     }
 
 
 {-| Default value for `Options`.
-Params:
- * `id` (type: `String`) : The `id` of the number input element.
+ * `onInput` (type: `String -> msg`) : The onInput Msg tagger
 
 Value:
 
-    { id = id
-    , maxLength = Nothing
+    { maxLength = Nothing
+    , onInput = onInput
+    , hasFocus = Nothing
     }
 
 -}
-defaultOptions : String -> Options
-defaultOptions id =
-    { id = id
-    , maxLength = Nothing
+defaultOptions : (String -> msg) -> Options msg
+defaultOptions onInput =
+    { maxLength = Nothing
+    , onInput = onInput
+    , hasFocus = Nothing
     }
 
 
-{-| (TEA) Model record
-Fields:
- * `value` : current value of the input element.
- * `hasFocus` : flag whether the input element has focus or not.
--}
-type alias Model =
-    { value : String
-    , hasFocus : Bool
-    }
-
-
-{-| (TEA) Initial model constant
-
-Value:
-
-    { value = ""
-    , hasFocus = False
-    }
-
--}
-init : Model
-init =
-    { value = ""
-    , hasFocus = False
-    }
-
-
-{-| (TEA) View function
+{-| Text input element
 
 Example:
 
@@ -95,64 +62,39 @@ Example:
         model.textModel
 
 -}
-input : Options -> List (Attribute Msg) -> Model -> Html Msg
-input options attributes model =
-    Html.input
-        (List.append attributes
-            [ id options.id
-            , value model.value
-            , onKeyDown options model KeyDown
-            , onInput (OnInput options)
-            , onFocus (OnFocus True)
-            , onBlur (OnFocus False)
-            , type' "text"
-            ]
-        )
-        []
+input : Options msg -> List (Attribute msg) -> String -> Html msg
+input options attributes currentValue =
+    let
+        onFocusAttribute =
+            options.hasFocus
+                |> Maybe.map (\f -> f True)
+                |> Maybe.map (onFocus)
+                |> Maybe.map (flip (::) [])
+                |> Maybe.withDefault []
+
+        onBlurAttribute =
+            options.hasFocus
+                |> Maybe.map (\f -> f False)
+                |> Maybe.map onBlur
+                |> Maybe.map (flip (::) [])
+                |> Maybe.withDefault []
+    in
+        Html.input
+            ((List.append attributes
+                [ value currentValue
+                , onKeyDown options currentValue options.onInput
+                , onInput options.onInput
+                , type' "text"
+                ]
+             )
+                |> List.append onFocusAttribute
+                |> List.append onBlurAttribute
+            )
+            []
 
 
-{-| (TEA) Update function
-
-Example:
-
-    type Msg = UpdateText Input.Text.Msg
-
-    update msg model =
-        case msg of
-            UpdateText textMsg ->
-                { model | textModel = Input.Text.update textMsg model.textModel }
-
--}
-update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        NoOp ->
-            model
-
-        KeyDown _ ->
-            model
-
-        OnInput options newValue ->
-            if isValid newValue options then
-                { model | value = newValue }
-            else
-                model
-
-        OnFocus hasFocus ->
-            { model | hasFocus = hasFocus }
-
-
-{-| (TEA) Opaque Msg types
--}
-type Msg
-    = NoOp
-    | KeyDown KeyCode
-    | OnInput Options String
-    | OnFocus Bool
-
-
-onKeyDown : Options -> Model -> (Int -> msg) -> Attribute msg
-onKeyDown options model tagger =
+onKeyDown : Options msg -> String -> (String -> msg) -> Attribute msg
+onKeyDown options currentValue tagger =
     let
         eventOptions =
             { stopPropagation = False
@@ -163,7 +105,7 @@ onKeyDown options model tagger =
             (\event ->
                 let
                     newValue =
-                        (model.value ++ (event.keyCode |> Char.fromCode |> String.fromChar))
+                        (currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar))
                 in
                     if event.ctrlKey || event.altKey then
                         Err "modifier key is pressed"
@@ -178,12 +120,12 @@ onKeyDown options model tagger =
         decoder =
             filterKey
                 |> Json.customDecoder eventDecoder
-                |> Json.map tagger
+                |> Json.map (\_ -> tagger currentValue)
     in
         onWithOptions "keydown" eventOptions decoder
 
 
-isValid : String -> Options -> Bool
+isValid : String -> Options msg -> Bool
 isValid value options =
     let
         exceedMaxLength =

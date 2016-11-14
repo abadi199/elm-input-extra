@@ -1,4 +1,4 @@
-module DropdownMain exposing (main)
+module DropdownDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form)
 import Html.Attributes exposing (style, for)
@@ -23,7 +23,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { selectedValue = Just "2"
+    ( { selectedValue = Nothing
       }
     , Cmd.none
     )
@@ -40,7 +40,7 @@ dropdownOptions =
                 [ { value = "1", text = "One", enabled = True }
                 , { value = "2", text = "Two", enabled = True }
                 ]
-            , emptyItem = Just { value = "", text = "[Please Select]", enabled = True }
+            , emptyItem = Just { value = "0", text = "[Please Select]", enabled = True }
         }
 
 
@@ -54,7 +54,7 @@ view model =
     form []
         [ p []
             [ label []
-                [ text "Masked Input"
+                [ text "Masked Input: "
                 , Dropdown.dropdown
                     dropdownOptions
                     [ style
@@ -65,8 +65,8 @@ view model =
                     ]
                     model.selectedValue
                 ]
-            , text <| Maybe.withDefault "Not Selected" model.selectedValue
             ]
+        , p [] [ text "Selected Value: ", text <| Maybe.withDefault "Not Selected" model.selectedValue ]
         ]
 
 
