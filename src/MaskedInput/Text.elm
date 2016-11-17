@@ -1,4 +1,11 @@
-module MaskedInput.Text exposing (Options, input, defaultOptions)
+module MaskedInput.Text
+    exposing
+        ( Options
+        , input
+        , defaultOptions
+        , State
+        , initialState
+        )
 
 {-| Masked Text input
 
@@ -9,7 +16,7 @@ module MaskedInput.Text exposing (Options, input, defaultOptions)
 import Html exposing (Attribute, Html)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
 import Html.Attributes as Attributes exposing (value, id, type')
-import Char exposing (fromCode, KeyCode)
+import Char
 import String
 import Json.Decode as Json
 import Input.Decoder exposing (eventDecoder)
@@ -27,8 +34,22 @@ type alias Options msg =
     { pattern : String
     , inputCharacter : Char
     , onInput : String -> msg
+    , toMsg : State -> msg
     , hasFocus : Maybe (Bool -> msg)
     }
+
+
+{-| Opaque type for storing local State
+-}
+type State
+    = State (Maybe Char.KeyCode)
+
+
+{-| Initial state
+-}
+initialState : State
+initialState =
+    State Nothing
 
 
 {-| Default value for `Options`.
@@ -42,11 +63,12 @@ Value:
     }
 
 -}
-defaultOptions : (String -> msg) -> Options msg
-defaultOptions onInput =
+defaultOptions : (String -> msg) -> (State -> msg) -> Options msg
+defaultOptions onInput toMsg =
     { pattern = ""
     , inputCharacter = '#'
     , onInput = onInput
+    , toMsg = toMsg
     , hasFocus = Nothing
     }
 
@@ -65,8 +87,8 @@ Example:
         model.textModel
 
 -}
-input : Options msg -> List (Attribute msg) -> String -> Html msg
-input options attributes currentValue =
+input : Options msg -> List (Attribute msg) -> State -> String -> Html msg
+input options attributes state currentValue =
     let
         tokens =
             Pattern.parse options.inputCharacter options.pattern
@@ -86,13 +108,14 @@ input options attributes currentValue =
                 |> Maybe.withDefault []
 
         currentFormattedValue =
-            Pattern.format tokens (Debug.log "currentValue" currentValue)
+            Pattern.format tokens currentValue
     in
         Html.input
             ((List.append attributes
                 [ value currentFormattedValue
-                , onInput (processInput options tokens currentFormattedValue)
-                , onKeyDown currentFormattedValue tokens options.onInput
+                , onInput (processInput options tokens state currentFormattedValue)
+                , onKeyDown currentFormattedValue tokens options.toMsg
+                , onKeyPress currentFormattedValue tokens options.toMsg
                 , type' "text"
                 ]
              )
@@ -102,24 +125,47 @@ input options attributes currentValue =
             []
 
 
-processInput : Options msg -> List Pattern.Token -> String -> String -> msg
-processInput options tokens oldValue value =
+processInput : Options msg -> List Pattern.Token -> State -> String -> String -> msg
+processInput options tokens state oldValue value =
     let
-        _ =
-            Debug.log "processInput.oldValue" oldValue
+        adjustment =
+            case state of
+                State (Just 8) ->
+                    Pattern.Backspace
 
-        _ =
-            Debug.log "processInput.value" value
+                State (Just 46) ->
+                    Pattern.Delete
+
+                _ ->
+                    Pattern.OtherUpdate
     in
-        Pattern.adjust tokens Pattern.Backspace oldValue value |> Debug.log "adjustedValue" |> options.onInput
+        Pattern.adjust tokens adjustment oldValue value |> options.onInput
 
 
-onKeyDown : String -> List Pattern.Token -> (String -> msg) -> Attribute msg
-onKeyDown currentFormattedValue tokens tagger =
+onKeyDown : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
+onKeyDown currentFormattedValue tokens toMsg =
     let
-        _ =
-            Debug.log "onKeyDown.currentFormattedValue" currentFormattedValue
+        eventOptions =
+            { stopPropagation = False
+            , preventDefault = False
+            }
 
+        filterKey =
+            (\event ->
+                Ok event.keyCode
+            )
+
+        decoder =
+            filterKey
+                |> Json.customDecoder eventDecoder
+                |> Json.map (\keyCode -> toMsg <| State <| Debug.log "keydown" <| Just keyCode)
+    in
+        onWithOptions "keydown" eventOptions decoder
+
+
+onKeyPress : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
+onKeyPress currentFormattedValue tokens toMsg =
+    let
         eventOptions =
             { stopPropagation = False
             , preventDefault = True
@@ -140,11 +186,6 @@ onKeyDown currentFormattedValue tokens tagger =
         decoder =
             filterKey
                 |> Json.customDecoder eventDecoder
-                |> Json.map (\_ -> tagger <| Pattern.extract tokens currentFormattedValue)
+                |> Json.map (\keyCode -> toMsg <| State <| Debug.log "keypress" <| Just keyCode)
     in
-        onWithOptions "keydown" eventOptions decoder
-
-
-isValid : String -> List Pattern.Token -> Bool
-isValid value tokens =
-    Pattern.isValid (Debug.log "value" value) tokens |> Debug.log "isValid"
+        onWithOptions "keypress" eventOptions decoder

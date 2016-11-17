@@ -18,13 +18,14 @@ main =
 
 type alias Model =
     { value : String
+    , state : MaskedText.State
     , hasFocus : Bool
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { value = "", hasFocus = False }
+    ( { value = "", hasFocus = False, state = MaskedText.initialState }
     , Cmd.none
     )
 
@@ -33,7 +34,7 @@ inputOptions : MaskedText.Options Msg
 inputOptions =
     let
         defaultOptions =
-            MaskedText.defaultOptions InputChanged
+            MaskedText.defaultOptions InputChanged InputStateChanged
     in
         { defaultOptions
             | pattern = "(###) ###-####"
@@ -66,11 +67,13 @@ view model =
                           )
                         ]
                     ]
+                    model.state
                     model.value
                 ]
             ]
         , p [] [ text "Pattern: ", text inputOptions.pattern ]
         , p [] [ text "Value: ", text model.value ]
+        , p [] [ text "State: ", text <| toString model.state ]
         , p [] [ text "Has Focus: ", text <| toString model.hasFocus ]
         ]
 
@@ -79,6 +82,7 @@ type Msg
     = NoOp
     | InputChanged String
     | FocusChanged Bool
+    | InputStateChanged MaskedText.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -92,3 +96,6 @@ update msg model =
 
         FocusChanged bool ->
             ( { model | hasFocus = bool }, Cmd.none )
+
+        InputStateChanged state ->
+            ( { model | state = state }, Cmd.none )
