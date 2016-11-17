@@ -4,6 +4,7 @@ import Test exposing (..)
 import Expect
 import MaskedInput.Pattern as Pattern exposing (Token(..))
 import String
+import Diff
 
 
 -- CONSTANTS
@@ -31,8 +32,12 @@ all =
         , formatTests
         , extractTests
         , isValidTests
-        , adjustTests
-        , changesTests
+          -- , adjustTests
+          -- , changesTests
+          -- , processTests
+        , splitChangesTest
+        , changesPairWithTokenTests
+        , foldPairsTest
         ]
 
 
@@ -148,50 +153,208 @@ isValidTests =
 adjustTests : Test
 adjustTests =
     describe "Pattern.adjust"
-        [-- [ test "for parens pattern, from (12 to (123 will become (123)" <|
-         --     \() ->
-         --         Pattern.adjust parensPattern Pattern.OtherUpdate "(12" "(123"
-         --             |> Expect.equal "(123"
-         -- , test "for phone pattern, from (123) 45 to (1223) 45 will become (122) 345" <|
-         --     \() ->
-         --         Pattern.adjust phonePattern Pattern.Backspace "(123) 45" "(1223) 45"
-         --             |> Expect.equal "(122) 345"
-         -- , test "for parens pattern, from (123) to (123 will become (12" <|
-         --     \() ->
-         --         Pattern.adjust parensPattern Pattern.Backspace "(123)" "(123"
-         --             |> Expect.equal "(12"
-         -- , test "for parens pattern, from (123) to (13) will become (13" <|
-         --     \() ->
-         --         Pattern.adjust parensPattern "(123)" "(13)"
-         --             |> Expect.equal "(13"
-         -- , test "for parens pattern, from (123) to 123) will become (123)" <|
-         --     \() ->
-         --         Pattern.adjust parensPattern "(123)" "123)"
-         --             |> Expect.equal "(123)"
+        -- [ test "for parens pattern, from (12 to (123" <|
+        --     \() ->
+        --         Pattern.adjust parensPattern Pattern.OtherUpdate "(12" "(123"
+        --             |> Expect.equal "(123)"
+        -- , test "for phone pattern, from (123) 45 to (1223) 45" <|
+        --     \() ->
+        --         Pattern.adjust phonePattern Pattern.Backspace "(123) 45" "(1223) 45"
+        --             |> Expect.equal "(122) 345-"
+        [ test "for parens pattern, from (123) to (13)" <|
+            \() ->
+                Pattern.adjust parensPattern Pattern.Backspace "(123)" "(13)"
+                    |> Expect.equal "(13"
+        , test "for parens pattern, from (123) to (123" <|
+            \() ->
+                Pattern.adjust parensPattern Pattern.Backspace "(123)" "(123"
+                    |> Expect.equal "(12"
+          -- , test "for parens pattern, from (123) to 123) will become (123)" <|
+          --     \() ->
+          --         Pattern.adjust parensPattern Pattern.Backspace "(123)" "123)"
+          --             |> Expect.equal "(123)"
         ]
 
 
 changesTests : Test
 changesTests =
     describe "Pattern.changes"
-        [ test "changes from \"(123)\" to \"(123\"" <|
+        [ test "changes from (123) to (123" <|
             \() ->
                 Pattern.changes "(123)" "(123"
                     |> Expect.equal [ 4 ]
-        , test "changes from \"(123)\" to \"(13)\"" <|
+        , test "changes from (123) to (13)" <|
             \() ->
                 Pattern.changes "(123)" "(13)"
                     |> Expect.equal [ 2 ]
-        , test "changes from \"(12)\" to \"(123)\"" <|
+        , test "changes from (12) to (123)" <|
             \() ->
                 Pattern.changes "(12)" "(123)"
                     |> Expect.equal [ 3 ]
-        , test "changes from \"(123)\" to \"123\"" <|
+        , test "changes from (123) to 123" <|
             \() ->
                 Pattern.changes "(123)" "123"
                     |> Expect.equal [ 0, 4 ]
-        , test "changes from \"(123) 45\" to \"(1223) 45\"" <|
+        , test "changes from (123) 45 to (1223) 45" <|
             \() ->
                 Pattern.changes "(123) 45" "(1223) 45"
                     |> Expect.equal [ 2 ]
+        ]
+
+
+processTests : Test
+processTests =
+    describe "Pattern.process"
+        [ test "for parensPattern, changes from (123) to (123A)" <|
+            \() ->
+                Pattern.process parensPattern (Diff.diffChars "(123)" "(123A)") []
+                    |> Expect.equal
+                        [ Diff.NoChange "123"
+                        , Diff.Added "A"
+                        , Diff.NoChange ""
+                        ]
+        , test "for phonePattern, changes from (123) 45 to (12A3) 45" <|
+            \() ->
+                Pattern.process phonePattern (Diff.diffChars "(123) 45" "(12A3) 45") []
+                    |> Expect.equal
+                        [ Diff.NoChange "12"
+                        , Diff.Added "A"
+                        , Diff.NoChange "345"
+                        ]
+        ]
+
+
+splitChangesTest : Test
+splitChangesTest =
+    describe "Pattern.splitChanges"
+        [ test "Changes from (123) to (123A)" <|
+            \() ->
+                Pattern.splitChanges (Diff.diffChars "(123)" "(123A)")
+                    |> Expect.equal
+                        [ Diff.NoChange "("
+                        , Diff.NoChange "1"
+                        , Diff.NoChange "2"
+                        , Diff.NoChange "3"
+                        , Diff.Added "A"
+                        , Diff.NoChange ")"
+                        ]
+        , test "Changes from (123) to (13)" <|
+            \() ->
+                Pattern.splitChanges (Diff.diffChars "(123)" "(13)")
+                    |> Expect.equal
+                        [ Diff.NoChange "("
+                        , Diff.NoChange "1"
+                        , Diff.Removed "2"
+                        , Diff.NoChange "3"
+                        , Diff.NoChange ")"
+                        ]
+        ]
+
+
+changesPairWithTokenTests : Test
+changesPairWithTokenTests =
+    describe "Pattern.changesPairWithToken"
+        [ test "Changes from (123) to (123A) with parensPattern" <|
+            \() ->
+                Pattern.changesPairWithToken parensPattern (Diff.diffChars "(123)" "(123A)")
+                    |> Expect.equal
+                        [ ( Just <| Other '(', Diff.NoChange "(" )
+                        , ( Just <| Input, Diff.NoChange "1" )
+                        , ( Just <| Input, Diff.NoChange "2" )
+                        , ( Just <| Input, Diff.NoChange "3" )
+                        , ( Nothing, Diff.Added "A" )
+                        , ( Just <| Other ')', Diff.NoChange ")" )
+                        ]
+        , test "Changes from (123) to (13) with parensPattern" <|
+            \() ->
+                Pattern.changesPairWithToken parensPattern (Diff.diffChars "(123)" "(13)")
+                    |> Expect.equal
+                        [ ( Just <| Other '(', Diff.NoChange "(" )
+                        , ( Just <| Input, Diff.NoChange "1" )
+                        , ( Just <| Input, Diff.Removed "2" )
+                        , ( Just <| Input, Diff.NoChange "3" )
+                        , ( Just <| Other ')', Diff.NoChange ")" )
+                        ]
+        , test "Changes from (123) to (123 with parensPattern" <|
+            \() ->
+                Pattern.changesPairWithToken parensPattern (Diff.diffChars "(123)" "(123")
+                    |> Expect.equal
+                        [ ( Just <| Other '(', Diff.NoChange "(" )
+                        , ( Just <| Input, Diff.NoChange "1" )
+                        , ( Just <| Input, Diff.NoChange "2" )
+                        , ( Just <| Input, Diff.NoChange "3" )
+                        , ( Just <| Other ')', Diff.Removed ")" )
+                        ]
+        , test "Changes from (123) to 123) with parensPattern" <|
+            \() ->
+                Pattern.changesPairWithToken parensPattern (Diff.diffChars "(123)" "123)")
+                    |> Expect.equal
+                        [ ( Just <| Other '(', Diff.Removed "(" )
+                        , ( Just Input, Diff.NoChange "1" )
+                        , ( Just Input, Diff.NoChange "2" )
+                        , ( Just Input, Diff.NoChange "3" )
+                        , ( Just <| Other ')', Diff.NoChange ")" )
+                        ]
+        ]
+
+
+foldPairsTest : Test
+foldPairsTest =
+    describe "Pattern.foldPairs"
+        [ test "Changes from (123) to (123A) with parensPattern" <|
+            \() ->
+                Pattern.foldPairs
+                    Pattern.OtherUpdate
+                    [ ( Just <| Other '(', Diff.NoChange "(" )
+                    , ( Just <| Input, Diff.NoChange "1" )
+                    , ( Just <| Input, Diff.NoChange "2" )
+                    , ( Just <| Input, Diff.NoChange "3" )
+                    , ( Nothing, Diff.Added "A" )
+                    , ( Just <| Other ')', Diff.NoChange ")" )
+                    ]
+                    |> Expect.equal "123A"
+        , test "Changes from (123) to (13) with parensPattern and backspace" <|
+            \() ->
+                Pattern.foldPairs
+                    Pattern.Backspace
+                    [ ( Just <| Other '(', Diff.NoChange "(" )
+                    , ( Just <| Input, Diff.NoChange "1" )
+                    , ( Just <| Input, Diff.Removed "2" )
+                    , ( Just <| Input, Diff.NoChange "3" )
+                    , ( Just <| Other ')', Diff.NoChange ")" )
+                    ]
+                    |> Expect.equal "13"
+        , test "Changes from (123) to (123 with parensPattern and backspace" <|
+            \() ->
+                Pattern.foldPairs
+                    Pattern.Backspace
+                    [ ( Just <| Other '(', Diff.NoChange "(" )
+                    , ( Just <| Input, Diff.NoChange "1" )
+                    , ( Just <| Input, Diff.NoChange "2" )
+                    , ( Just <| Input, Diff.NoChange "3" )
+                    , ( Just <| Other ')', Diff.Removed ")" )
+                    ]
+                    |> Expect.equal "12"
+        , test "Changes from (123) to 123) with parensPattern and backspace" <|
+            \() ->
+                Pattern.foldPairs
+                    Pattern.Backspace
+                    [ ( Just <| Other '(', Diff.Removed "(" )
+                    , ( Just Input, Diff.NoChange "1" )
+                    , ( Just Input, Diff.NoChange "2" )
+                    , ( Just Input, Diff.NoChange "3" )
+                    , ( Just <| Other ')', Diff.NoChange ")" )
+                    ]
+                    |> Expect.equal "123"
+        , test "Changes from (123) to 123) with parensPattern and delete" <|
+            \() ->
+                Pattern.foldPairs
+                    Pattern.Delete
+                    [ ( Just <| Other '(', Diff.Removed "(" )
+                    , ( Just Input, Diff.NoChange "1" )
+                    , ( Just Input, Diff.NoChange "2" )
+                    , ( Just Input, Diff.NoChange "3" )
+                    , ( Just <| Other ')', Diff.NoChange ")" )
+                    ]
+                    |> Expect.equal "23"
         ]
