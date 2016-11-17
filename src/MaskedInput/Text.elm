@@ -86,13 +86,13 @@ input options attributes currentValue =
                 |> Maybe.withDefault []
 
         currentFormattedValue =
-            (Pattern.format tokens currentValue)
+            Pattern.format tokens (Debug.log "currentValue" currentValue)
     in
         Html.input
             ((List.append attributes
                 [ value currentFormattedValue
-                , onKeyDown currentFormattedValue tokens options.onInput
                 , onInput (processInput options tokens currentFormattedValue)
+                , onKeyDown currentFormattedValue tokens options.onInput
                 , type' "text"
                 ]
              )
@@ -106,14 +106,20 @@ processInput : Options msg -> List Pattern.Token -> String -> String -> msg
 processInput options tokens oldValue value =
     let
         _ =
-            Debug.log "oldValue" oldValue
+            Debug.log "processInput.oldValue" oldValue
+
+        _ =
+            Debug.log "processInput.value" value
     in
-        Pattern.extract tokens (Debug.log "newValue" value) |> options.onInput
+        Pattern.adjust tokens Pattern.Backspace oldValue value |> Debug.log "adjustedValue" |> options.onInput
 
 
 onKeyDown : String -> List Pattern.Token -> (String -> msg) -> Attribute msg
-onKeyDown currentValue tokens tagger =
+onKeyDown currentFormattedValue tokens tagger =
     let
+        _ =
+            Debug.log "onKeyDown.currentFormattedValue" currentFormattedValue
+
         eventOptions =
             { stopPropagation = False
             , preventDefault = True
@@ -121,24 +127,20 @@ onKeyDown currentValue tokens tagger =
 
         filterKey =
             (\event ->
-                let
-                    newValue =
-                        (currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar))
-                in
-                    if event.ctrlKey || event.altKey then
-                        Err "modifier key is pressed"
-                    else if List.any ((==) event.keyCode) allowedKeyCodes then
-                        Err "not arrow"
-                    else if (isValid newValue tokens) then
-                        Err "valid"
-                    else
-                        Ok event.keyCode
+                if event.ctrlKey || event.altKey then
+                    Err "modifier key is pressed"
+                else if List.any ((==) event.keyCode) allowedKeyCodes then
+                    Err "not arrow"
+                else if String.length currentFormattedValue < List.length tokens then
+                    Err "accepting more input"
+                else
+                    Ok event.keyCode
             )
 
         decoder =
             filterKey
                 |> Json.customDecoder eventDecoder
-                |> Json.map (\_ -> tagger currentValue)
+                |> Json.map (\_ -> tagger <| Pattern.extract tokens currentFormattedValue)
     in
         onWithOptions "keydown" eventOptions decoder
 

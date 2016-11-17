@@ -187,7 +187,6 @@ adjust : List Token -> Adjustment -> String -> String -> String
 adjust tokens adjustment previous current =
     changesPairWithToken tokens previous current
         |> foldPairs adjustment
-        |> format tokens
 
 
 splitChanges : List Diff.Change -> List Diff.Change

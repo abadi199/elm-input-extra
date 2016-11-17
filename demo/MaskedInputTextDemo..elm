@@ -36,7 +36,7 @@ inputOptions =
             MaskedText.defaultOptions InputChanged
     in
         { defaultOptions
-            | pattern = "##/##/####"
+            | pattern = "(###) ###-####"
             , hasFocus = Just FocusChanged
         }
 

@@ -154,23 +154,27 @@ adjustTests =
         [ test "for parens pattern, from (12 to (123" <|
             \() ->
                 Pattern.adjust parensPattern Pattern.OtherUpdate "(12" "(123"
-                    |> Expect.equal "(123)"
+                    |> Expect.equal "123"
         , test "for phone pattern, from (123) 45 to (1223) 45" <|
             \() ->
                 Pattern.adjust phonePattern Pattern.Backspace "(123) 45" "(1223) 45"
-                    |> Expect.equal "(122) 345-"
+                    |> Expect.equal "122345"
         , test "for parens pattern, from (123) to (13)" <|
             \() ->
                 Pattern.adjust parensPattern Pattern.Backspace "(123)" "(13)"
-                    |> Expect.equal "(13"
+                    |> Expect.equal "13"
         , test "for parens pattern, from (123) to (123" <|
             \() ->
                 Pattern.adjust parensPattern Pattern.Backspace "(123)" "(123"
-                    |> Expect.equal "(12"
-        , test "for parens pattern, from (123) to 123) will become (123)" <|
+                    |> Expect.equal "12"
+        , test "for parens pattern, from (123) to 123)" <|
             \() ->
                 Pattern.adjust parensPattern Pattern.Backspace "(123)" "123)"
-                    |> Expect.equal "(123)"
+                    |> Expect.equal "123"
+        , test "for parens pattern, from (123) to (123)5" <|
+            \() ->
+                Pattern.adjust parensPattern Pattern.Backspace "(123)" "(123)5"
+                    |> Expect.equal "1235"
         ]
 
 
