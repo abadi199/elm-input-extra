@@ -8,8 +8,6 @@ module MaskedInput.Pattern
         , isValid
         , adjust
         , Adjustment(..)
-        , changes
-        , process
         , splitChanges
         , changesPairWithToken
         , foldPairs
@@ -187,28 +185,9 @@ type Adjustment
 
 adjust : List Token -> Adjustment -> String -> String -> String
 adjust tokens adjustment previous current =
-    let
-        diff =
-            Diff.diffChars previous current
-
-        processed =
-            process tokens diff []
-                |> Debug.log "============="
-
-        fold change str =
-            case change of
-                Diff.Removed _ ->
-                    str
-
-                _ ->
-                    str ++ changedString change
-
-        changesIndex =
-            changes previous current
-    in
-        processed
-            |> List.foldl fold ""
-            |> format tokens
+    changesPairWithToken tokens previous current
+        |> foldPairs adjustment
+        |> format tokens
 
 
 splitChanges : List Diff.Change -> List Diff.Change
@@ -248,8 +227,8 @@ isAdd change =
             False
 
 
-changesPairWithToken : List Token -> List Diff.Change -> List ( Maybe Token, Diff.Change )
-changesPairWithToken tokens changes =
+changesPairWithToken : List Token -> String -> String -> List ( Maybe Token, Diff.Change )
+changesPairWithToken tokens previous current =
     let
         getToken index change =
             case change of
@@ -259,12 +238,15 @@ changesPairWithToken tokens changes =
                 _ ->
                     let
                         tokenIndex =
-                            ((List.length tokens) - 1) - index
+                            if List.length tokens < String.length previous then
+                                ((List.length tokens) - 1) - index
+                            else
+                                ((String.length previous) - 1) - index
                     in
                         List.Extra.getAt tokenIndex tokens
 
         splittedChanges =
-            changes
+            Diff.diffChars previous current
                 |> splitChanges
 
         totalChanges =
@@ -347,60 +329,6 @@ foldPairs adjustment pairs =
                 right
 
 
-process : List Token -> List Diff.Change -> List Diff.Change -> List Diff.Change
-process tokens unprocessed processed =
-    let
-        _ =
-            Debug.log "unprocessed" unprocessed
-
-        _ =
-            Debug.log "processed" processed
-
-        changeFilter change =
-            case change of
-                Diff.NoChange _ ->
-                    True
-
-                Diff.Removed _ ->
-                    True
-
-                _ ->
-                    False
-    in
-        case unprocessed of
-            [] ->
-                []
-
-            head :: tail ->
-                let
-                    extracted =
-                        List.append processed [ head ]
-                            |> List.filter changeFilter
-                            |> List.map changedString
-                            |> List.foldl (flip (++)) ""
-                            |> extract tokens
-                            |> Debug.log "extracted"
-
-                    extractedProcessed =
-                        processed
-                            |> List.filter changeFilter
-                            |> List.map changedString
-                            |> List.foldl (flip (++)) ""
-                            |> extract tokens
-                            |> Debug.log "extractedProcessed"
-
-                    extractedHead =
-                        String.dropLeft (String.length extractedProcessed) extracted
-                            |> Debug.log "extractedHead"
-                in
-                    case head of
-                        Diff.NoChange _ ->
-                            [ Diff.NoChange extractedHead ] ++ process tokens tail (processed ++ [ head ])
-
-                        _ ->
-                            [ head ] ++ process tokens tail (processed ++ [ head ])
-
-
 changedString : Diff.Change -> String
 changedString change =
     case change of
@@ -415,25 +343,3 @@ changedString change =
 
         Diff.Changed _ str ->
             str
-
-
-changes : String -> String -> List Int
-changes previous current =
-    let
-        foldDiff change ( index, result ) =
-            let
-                updatedIndex =
-                    String.length (changedString change) + index
-            in
-                ( updatedIndex
-                , case change of
-                    Diff.NoChange _ ->
-                        result
-
-                    _ ->
-                        List.append result [ updatedIndex ]
-                )
-    in
-        Diff.diffChars previous current
-            |> List.foldl foldDiff ( -1, [] )
-            |> snd
