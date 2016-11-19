@@ -2,105 +2,124 @@
 
 ## Number Input
 
-Html input component that only accept numeric values. This component implements [The Elm Architecture (TEA)](http://guide.elm-lang.org/architecture/index.html).
+Html input element that only accept numeric values.
 
 ### Options
- * `id` is the id of the HTML element.
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
  * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
  * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
+
+### Example
+```elm
+type Msg = InputUpdated String | FocusUpdated Bool
+
+Input.Number.input
+    { onInput = InputUpdated
+    , maxLength = Nothing
+    , maxValue = 1000
+    , minValue = 10
+    , hasFocus = Just FocusUpdated
+    }
+    [ class "numberInput"
+    ...
+    ]
+    model.currentValue
+``` 
 
 ## Text Input
 
-Html input component with extra feature. This component implements [The Elm Architecture (TEA)](http://guide.elm-lang.org/architecture/index.html).
+Html input element with extra feature.
 
 ### Options
- * `id` is the id of the HTML element.
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 
-
-
-## Example
+### Example
 ```elm
-import Input.Number as Number
-import Input.Text as Text
-import Html exposing (Html, text)
-import Html.Attributes exposing (style, for)
-import Html.App as Html
+type Msg = InputUpdated String | FocusUpdated Bool
 
-type alias Model =
-    { numberModel : Number.Model
-    , numberOptions : Number.Options
-    , textModel : Text.Model
-    , textOptions : Text.Options
+Input.Text.input
+    { maxLength = 10
+    , onInput = InputUpdated
+    , hasFocus = Just FocusUpdated
     }
+    [ class "textInput"
+    ...
+    ]
+    model.currentValue
+```
 
+## Masked Input
 
-init : Model
-init =
-    { numberModel = Number.init
-    , numberOptions =
-        { id = "NumberInput"
-        , maxLength = Just 4
-        , maxValue = Nothing
-        , minValue = Nothing
-        }
-    , textModel = Text.init
-    , textOptions =
-        { id = "TextInput"
-        , maxLength = Just 4
-        }
+Html input element with formatting.
+
+### Options
+ * `pattern` is the pattern used to format the input value. e.g.: (###) ###-####
+ * `inputCharacter`: is the special character used to represent user input. Default value: `#`
+ * `toMsg`: is the Msg for updating internal `State` of the element.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
+
+### Example
+```elm
+type Msg 
+    = InputUpdated String 
+    | StateUpdated MaskedInput.State 
+    | FocusUpdated Bool
+
+MaskedInput.Text.input
+    { pattern = "(###) ###-####"
+    , inputCharacter = '#'
+    , onInput = InputUpdated
+    , toMsg = StateUpdated
+    , hasFocus = Just FocusUpdated
     }
+    [ class "masked-input"
+    ...
+    ]
+    model.currentState
+    model.currentValue
+```
 
+## Dropdown
 
-view : Model -> Html Msg
-view model =
-    Html.form []
-        [ Html.p []
-            [ Html.label [ for model.numberOptions.id ] [ text "Number Input" ]
-            , Number.input model.numberOptions
-                [ style
-                    [ ( "border", "1px solid #ccc" )
-                    , ( "padding", ".5rem" )
-                    , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
-                    ]
-                ]
-                model.numberModel
-                |> Html.map UpdateNumber
-            , Html.text ("value: " ++ model.numberModel.value)
-            ]
-        , Html.p []
-            [ Html.label [ for model.textOptions.id ] [ text "Text Input" ]
-            , Text.input model.textOptions
-                [ style
-                    [ ( "border", "1px solid #ccc" )
-                    , ( "padding", ".5rem" )
-                    , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
-                    ]
-                ]
-                model.textModel
-                |> Html.map UpdateText
-            , Html.text ("value: " ++ model.textModel.value)
-            ]
-        ]
+Html select element
 
+### Options
+ * `items` is content of the dropdown.
+ * `emptyItem` is the item for when the nothing is selected. Set to `Nothing` for no empty item.
+ * `onChange` is the message for when the selected value in the dropdown is changed.
 
-type Msg
-    = NoOp
-    | UpdateNumber Number.Msg
-    | UpdateText Text.Msg
+### Example
+```elm
+type Msg = DropdownChanged String
 
+Html.div []
+    [ Dropdown.dropdown
+        (Dropdown.defaultOptions DropdownChanged)
+        [ class "my-dropdown" ]
+        model.selectedDropdownValue
+    ]
+```
+## Multi Select
 
-update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        NoOp ->
-            model
+Html select element with multiple selection
 
-        UpdateNumber numberMsg ->
-            { model | numberModel = Number.update numberMsg model.numberModel }
+### Options 
+ * `items` is content of the dropdown.
+ * `onChange` is the message for when the selected value in the multi-select is changed.
 
-        UpdateText textMsg ->
-            { model | textModel = Text.update textMsg model.textModel }
+### Example
+```elm
+type Msg = MultiSelectChanged (List String)
 
+Html.div []
+    [ multiSelect
+        (defaultOptions MultiSelectChanged)
+        [ class "my-multiSelect" ]
+        model.selectedValues
+    ]
 ```

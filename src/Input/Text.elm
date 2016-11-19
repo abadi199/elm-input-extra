@@ -52,14 +52,17 @@ defaultOptions onInput =
 
 Example:
 
+    type Msg = InputUpdated String | FocusUpdated Bool
+
     Input.Text.input
-        { id = "TextInput"
-        , maxLength = Just 4
+        { maxLength = 10
+        , onInput = InputUpdated
+        , hasFocus = Just FocusUpdated
         }
         [ class "textInput"
         ...
         ]
-        model.textModel
+        model.currentValue
 
 -}
 input : Options msg -> List (Attribute msg) -> String -> Html msg

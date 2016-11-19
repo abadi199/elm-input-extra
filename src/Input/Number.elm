@@ -19,10 +19,11 @@ import Input.KeyCode exposing (allowedKeyCodes)
 
 {-| Options of the input component.
 
- * `id` is the id of the HTML element.
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
  * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
  * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
 type alias Options msg =
     { maxLength : Maybe Int
@@ -35,14 +36,15 @@ type alias Options msg =
 
 {-| Default value for `Options`.
 Params:
- * `id` (type: `String`) : The `id` of the number input element.
+ * `onInput` (type: `String -> msg`) : The onInput Msg tagger
 
 Value:
 
-    { id = id
+    { onInput = onInput
     , maxLength = Nothing
     , maxValue = Nothing
     , minValue = Nothing
+    , hasFocus = Nothing
     }
 
 -}
@@ -56,20 +58,23 @@ defaultOptions onInput =
     }
 
 
-{-| (TEA) View function
+{-| View function
 
 Example:
 
+    type Msg = InputUpdated String | FocusUpdated Bool
+
     Input.Number.input
-        { id = "NumberInput"
-        , maxLength = Just 4
-        , maxValue = Nothing
-        , minValue = Nothing
+        { onInput = InputUpdated
+        , maxLength = Nothing
+        , maxValue = 1000
+        , minValue = 10
+        , hasFocus = Just FocusUpdated
         }
         [ class "numberInput"
         ...
         ]
-        model.numberModel
+        model.currentValue
 
 -}
 input : Options msg -> List (Attribute msg) -> Maybe Int -> Html msg

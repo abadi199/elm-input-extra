@@ -47,6 +47,8 @@ defaultOptions onChange =
 Put this in your view's Html content.
 Example:
 
+    type Msg = DropdownChanged String
+
     Html.div []
         [ Dropdown.dropdown
             (Dropdown.defaultOptions DropdownChanged)

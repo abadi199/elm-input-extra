@@ -48,6 +48,8 @@ defaultOptions onChange =
 Put this in your view's Html content.
 Example:
 
+    type Msg = MultiSelectChanged (List String)
+
     Html.div []
         [ multiSelect
             (defaultOptions MultiSelectChanged)

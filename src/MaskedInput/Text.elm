@@ -26,7 +26,9 @@ import MaskedInput.Pattern as Pattern
 
 {-| Options of the input component.
 
- * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `pattern` is the pattern used to format the input value. e.g.: (###) ###-####
+ * `inputCharacter`: is the special character used to represent user input. Default value: `#`
+ * `toMsg`: is the Msg for updating internal `State` of the element.
  * `onInput` is the Msg tagger for the onInput event.
  * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
@@ -54,11 +56,14 @@ initialState =
 
 {-| Default value for `Options`.
  * `onInput` (type: `String -> msg`) : The onInput Msg tagger
+ * `toMsg` (type: `String -> msg`) : The Msg for updating internal `State` of the element.
 
 Value:
 
-    { maxLength = Nothing
+    { pattern = ""
+    , inputCharacter = '#'
     , onInput = onInput
+    , toMsg = toMsg
     , hasFocus = Nothing
     }
 
@@ -77,14 +82,20 @@ defaultOptions onInput toMsg =
 
 Example:
 
-    Input.Text.input
-        { id = "TextInput"
-        , maxLength = Just 4
+    type Msg = InputUpdated String | StateUpdated MaskedInput.State | FocusUpdated Bool
+
+    MaskedInput.Text.input
+        { pattern = "(###) ###-####"
+        , inputCharacter = '#'
+        , onInput = InputUpdated
+        , toMsg = StateUpdated
+        , hasFocus = Just FocusUpdated
         }
-        [ class "textInput"
+        [ class "masked-input"
         ...
         ]
-        model.textModel
+        model.currentState
+        model.currentValue
 
 -}
 input : Options msg -> List (Attribute msg) -> State -> String -> Html msg
