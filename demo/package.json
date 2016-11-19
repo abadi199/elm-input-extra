@@ -1,0 +1,11 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "Demo for elm-input-extra",
+  "main": "index.js",
+  "scripts": {
+    "build": "elm-make *.elm --yes --output demo.js"
+  },
+  "author": "Abadi Kurniawan",
+  "license": "ISC"
+}

@@ -1,6 +1,6 @@
 module DropdownDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form)
+import Html exposing (Html, text, p, label, form, ul, li)
 import Html.Attributes exposing (style, for)
 import Dropdown
 
@@ -53,7 +53,7 @@ view model =
     form []
         [ p []
             [ label []
-                [ text "Masked Input: "
+                [ text "Dropdown: "
                 , Dropdown.dropdown
                     dropdownOptions
                     [ style
@@ -65,7 +65,10 @@ view model =
                     model.selectedValue
                 ]
             ]
-        , p [] [ text "Selected Value: ", text <| Maybe.withDefault "Not Selected" model.selectedValue ]
+        , p []
+            [ ul []
+                [ li [] [ text "Selected Value: ", text <| Maybe.withDefault "Not Selected" model.selectedValue ] ]
+            ]
         ]
 
 

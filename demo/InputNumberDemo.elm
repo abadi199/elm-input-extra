@@ -1,6 +1,6 @@
 module InputNumberDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form)
+import Html exposing (Html, text, p, label, form, ul, li)
 import Html.Attributes exposing (style, for)
 import Input.Number as Number
 
@@ -70,11 +70,15 @@ view model =
                     model.value
                 ]
             ]
-        , p [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
-        , p [] [ text "Max Value: ", text <| Maybe.withDefault "No Max" <| Maybe.map toString <| inputOptions.maxValue ]
-        , p [] [ text "Min Value: ", text <| Maybe.withDefault "No Min" <| Maybe.map toString <| inputOptions.minValue ]
-        , p [] [ text "Value: ", text <| Maybe.withDefault "NaN" <| Maybe.map toString <| model.value ]
-        , p [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+        , p []
+            [ ul []
+                [ li [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
+                , li [] [ text "Max Value: ", text <| Maybe.withDefault "No Max" <| Maybe.map toString <| inputOptions.maxValue ]
+                , li [] [ text "Min Value: ", text <| Maybe.withDefault "No Min" <| Maybe.map toString <| inputOptions.minValue ]
+                , li [] [ text "Value: ", text <| Maybe.withDefault "NaN" <| Maybe.map toString <| model.value ]
+                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                ]
+            ]
         ]
 
 

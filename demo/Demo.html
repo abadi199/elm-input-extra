@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Demo for elm-input-extra</title>
+        <style>
+            .demo-section {
+                border: 1px solid #ccc;
+                padding: 0 1em;
+                margin: 1em 0; 
+            }
+        </style>
+    </head>
+    <body>
+        <div id="dropdown" class="demo-section"></div>
+        <div id="text" class="demo-section"></div>
+        <div id="number" class="demo-section"></div>
+        <div id="masked" class="demo-section"></div>
+        <script src="demo.js"></script>
+        <script>
+            Elm.DropdownDemo.embed(document.getElementById("dropdown"));
+            Elm.InputTextDemo.embed(document.getElementById("text"));
+            Elm.InputNumberDemo.embed(document.getElementById("number"));
+            Elm.MaskedInputTextDemo.embed(document.getElementById("masked"));
+        </script>
+    </body>
+</html>

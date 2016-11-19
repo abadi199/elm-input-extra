@@ -1,6 +1,6 @@
 module InputTextDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form)
+import Html exposing (Html, text, p, label, form, ul, li)
 import Html.Attributes exposing (style, for)
 import Input.Text as Text
 
@@ -68,9 +68,13 @@ view model =
                     model.value
                 ]
             ]
-        , p [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
-        , p [] [ text "Value: ", text model.value ]
-        , p [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+        , p []
+            [ ul []
+                [ li [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
+                , li [] [ text "Value: ", text model.value ]
+                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                ]
+            ]
         ]
 
 
