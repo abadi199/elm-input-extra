@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Elm-input-extra by abadi199</title>
+    <title>Elm Input Extra by abadi199</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
@@ -15,8 +15,8 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Elm-input-extra</h1>
-        <p>Commonly used Html element with extra functionality</p>
+        <h1>Elm Input Extra</h1>
+        <p>Commonly used Html element with extra stuff -- written in Elm</p>
 
         <p class="view"><a href="https://github.com/abadi199/elm-input-extra">View the Project on GitHub <small>abadi199/elm-input-extra</small></a></p>
 
@@ -28,134 +28,37 @@
         </ul>
       </header>
       <section>
-        <h1>
-<a id="elm-input-extra" class="anchor" href="#elm-input-extra" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Elm Input Extra</h1>
-
-<h2>
-<a id="number-input" class="anchor" href="#number-input" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Number Input</h2>
-
-<p>Html input component that only accept numeric values. This component implements <a href="http://guide.elm-lang.org/architecture/index.html">The Elm Architecture (TEA)</a>.</p>
-
-<h3>
-<a id="options" class="anchor" href="#options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Options</h3>
-
-<ul>
-<li>
-<code>id</code> is the id of the HTML element.</li>
-<li>
-<code>maxLength</code> is the maximum number of character allowed in this input. Set to <code>Nothing</code> for no limit.</li>
-<li>
-<code>maxValue</code> is the maximum number value allowed in this input. Set to <code>Nothing</code> for no limit.</li>
-<li>
-<code>minValue</code> is the minimum number value allowed in this input. Set to <code>Nothing</code> for no limit.</li>
-</ul>
-
-<h2>
-<a id="text-input" class="anchor" href="#text-input" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Text Input</h2>
-
-<p>Html input component with extra feature. This component implements <a href="http://guide.elm-lang.org/architecture/index.html">The Elm Architecture (TEA)</a>.</p>
-
-<h3>
-<a id="options-1" class="anchor" href="#options-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Options</h3>
-
-<ul>
-<li>
-<code>id</code> is the id of the HTML element.</li>
-<li>
-<code>maxLength</code> is the maximum number of character allowed in this input. Set to <code>Nothing</code> for no limit.</li>
-</ul>
-
-<h2>
-<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h2>
-
-<div class="highlight highlight-source-elm"><pre><span class="pl-k">import</span> <span class="pl-c1">Input.Number</span> <span class="pl-k">as</span> <span class="pl-c1">Number</span>
-<span class="pl-k">import</span> <span class="pl-c1">Input.Text</span> <span class="pl-k">as</span> <span class="pl-c1">Text</span>
-<span class="pl-k">import</span> <span class="pl-c1">Html</span> <span class="pl-k">exposing</span> (<span class="pl-k">Html</span>, <span class="pl-en">text</span>)
-<span class="pl-k">import</span> <span class="pl-c1">Html.Attributes</span> <span class="pl-k">exposing</span> (<span class="pl-en">style</span>, <span class="pl-en">for</span>)
-<span class="pl-k">import</span> <span class="pl-c1">Html.App</span> <span class="pl-k">as</span> <span class="pl-c1">Html</span>
-
-<span class="pl-k">type alias </span><span class="pl-c1">Model</span> <span class="pl-k">=</span>
-    <span class="pl-c1"><span class="pl-c1">{</span></span> numberModel <span class="pl-k">:</span> <span class="pl-c1">Number</span><span class="pl-k">.</span><span class="pl-c1">Model</span>
-    <span class="pl-c1"><span class="pl-c1">,</span></span> numberOptions <span class="pl-k">:</span> <span class="pl-c1">Number</span><span class="pl-k">.</span><span class="pl-c1">Options</span>
-    <span class="pl-c1"><span class="pl-c1">,</span></span> textModel <span class="pl-k">:</span> <span class="pl-c1">Text</span><span class="pl-k">.</span><span class="pl-c1">Model</span>
-    <span class="pl-c1"><span class="pl-c1">,</span></span> textOptions <span class="pl-k">:</span> <span class="pl-c1">Text</span><span class="pl-k">.</span><span class="pl-c1">Options</span>
-    <span class="pl-c1"><span class="pl-c1">}</span></span>
-
-
-<span class="pl-en">init</span> <span class="pl-k">:</span> <span class="pl-k">Model</span>
-<span class="pl-en">init </span><span class="pl-k">=</span>
-    <span class="pl-c1"><span class="pl-c1">{</span></span> numberModel <span class="pl-k">=</span> <span class="pl-c1">Number</span><span class="pl-k">.</span>init
-    <span class="pl-c1"><span class="pl-c1">,</span></span> numberOptions <span class="pl-k">=</span>
-        <span class="pl-c1"><span class="pl-c1">{</span></span> id <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>NumberInput<span class="pl-pds">"</span></span>
-        <span class="pl-c1"><span class="pl-c1">,</span></span> maxLength <span class="pl-k">=</span> <span class="pl-c1">Just</span> <span class="pl-c1">4</span>
-        <span class="pl-c1"><span class="pl-c1">,</span></span> maxValue <span class="pl-k">=</span> <span class="pl-c1">Nothing</span>
-        <span class="pl-c1"><span class="pl-c1">,</span></span> minValue <span class="pl-k">=</span> <span class="pl-c1">Nothing</span>
-        <span class="pl-c1"><span class="pl-c1">}</span></span>
-    <span class="pl-c1"><span class="pl-c1">,</span></span> textModel <span class="pl-k">=</span> <span class="pl-c1">Text</span><span class="pl-k">.</span>init
-    <span class="pl-c1"><span class="pl-c1">,</span></span> textOptions <span class="pl-k">=</span>
-        <span class="pl-c1"><span class="pl-c1">{</span></span> id <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>TextInput<span class="pl-pds">"</span></span>
-        <span class="pl-c1"><span class="pl-c1">,</span></span> maxLength <span class="pl-k">=</span> <span class="pl-c1">Just</span> <span class="pl-c1">4</span>
-        <span class="pl-c1"><span class="pl-c1">}</span></span>
-    <span class="pl-c1"><span class="pl-c1">}</span></span>
-
-
-<span class="pl-en">view</span> <span class="pl-k">:</span> <span class="pl-k">Model</span> <span class="pl-k">-&gt;</span> <span class="pl-k">Html</span> <span class="pl-k">Msg</span>
-<span class="pl-en">view </span>model <span class="pl-k">=</span>
-    <span class="pl-c1">Html</span><span class="pl-k">.</span>form <span class="pl-c1"><span class="pl-c1">[]</span></span>
-        <span class="pl-c1"><span class="pl-c1">[</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>p <span class="pl-c1"><span class="pl-c1">[]</span></span>
-            <span class="pl-c1"><span class="pl-c1">[</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>label <span class="pl-c1"><span class="pl-c1">[</span></span> for model<span class="pl-k">.</span>numberOptions<span class="pl-k">.</span>id <span class="pl-c1"><span class="pl-c1">]</span></span> <span class="pl-c1"><span class="pl-c1">[</span></span> text <span class="pl-s"><span class="pl-pds">"</span>Number Input<span class="pl-pds">"</span></span> <span class="pl-c1"><span class="pl-c1">]</span></span>
-            <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-c1">Number</span><span class="pl-k">.</span>input model<span class="pl-k">.</span>numberOptions
-                <span class="pl-c1"><span class="pl-c1">[</span></span> style
-                    <span class="pl-c1"><span class="pl-c1">[</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>border<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>1px solid #ccc<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>padding<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>.5rem<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>box-shadow<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>inset 0 1px 1px rgba(0,0,0,.075);<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">]</span></span>
-                <span class="pl-c1"><span class="pl-c1">]</span></span>
-                model<span class="pl-k">.</span>numberModel
-                <span class="pl-k">|&gt;</span> <span class="pl-c1">Html</span><span class="pl-k">.</span>map <span class="pl-c1">UpdateNumber</span>
-            <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>text <span class="pl-k">(</span><span class="pl-s"><span class="pl-pds">"</span>value: <span class="pl-pds">"</span></span> <span class="pl-k">++</span> model<span class="pl-k">.</span>numberModel<span class="pl-k">.</span>value<span class="pl-k">)</span>
-            <span class="pl-c1"><span class="pl-c1">]</span></span>
-        <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>p <span class="pl-c1"><span class="pl-c1">[]</span></span>
-            <span class="pl-c1"><span class="pl-c1">[</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>label <span class="pl-c1"><span class="pl-c1">[</span></span> for model<span class="pl-k">.</span>textOptions<span class="pl-k">.</span>id <span class="pl-c1"><span class="pl-c1">]</span></span> <span class="pl-c1"><span class="pl-c1">[</span></span> text <span class="pl-s"><span class="pl-pds">"</span>Text Input<span class="pl-pds">"</span></span> <span class="pl-c1"><span class="pl-c1">]</span></span>
-            <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-c1">Text</span><span class="pl-k">.</span>input model<span class="pl-k">.</span>textOptions
-                <span class="pl-c1"><span class="pl-c1">[</span></span> style
-                    <span class="pl-c1"><span class="pl-c1">[</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>border<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>1px solid #ccc<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>padding<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>.5rem<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-k">(</span> <span class="pl-s"><span class="pl-pds">"</span>box-shadow<span class="pl-pds">"</span></span><span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-s"><span class="pl-pds">"</span>inset 0 1px 1px rgba(0,0,0,.075);<span class="pl-pds">"</span></span> <span class="pl-k">)</span>
-                    <span class="pl-c1"><span class="pl-c1">]</span></span>
-                <span class="pl-c1"><span class="pl-c1">]</span></span>
-                model<span class="pl-k">.</span>textModel
-                <span class="pl-k">|&gt;</span> <span class="pl-c1">Html</span><span class="pl-k">.</span>map <span class="pl-c1">UpdateText</span>
-            <span class="pl-c1"><span class="pl-c1">,</span></span> <span class="pl-c1">Html</span><span class="pl-k">.</span>text <span class="pl-k">(</span><span class="pl-s"><span class="pl-pds">"</span>value: <span class="pl-pds">"</span></span> <span class="pl-k">++</span> model<span class="pl-k">.</span>textModel<span class="pl-k">.</span>value<span class="pl-k">)</span>
-            <span class="pl-c1"><span class="pl-c1">]</span></span>
-        <span class="pl-c1"><span class="pl-c1">]</span></span>
-
-
-<span class="pl-k">type </span><span class="pl-c1">Msg</span>
-    <span class="pl-k">=</span> <span class="pl-c1">NoOp</span>
-    <span class="pl-k">|</span> <span class="pl-c1">UpdateNumber</span> <span class="pl-c1">Number</span><span class="pl-k">.</span><span class="pl-c1">Msg</span>
-    <span class="pl-k">|</span> <span class="pl-c1">UpdateText</span> <span class="pl-c1">Text</span><span class="pl-k">.</span><span class="pl-c1">Msg</span>
-
-
-<span class="pl-en">update</span> <span class="pl-k">:</span> <span class="pl-k">Msg</span> <span class="pl-k">-&gt;</span> <span class="pl-k">Model</span> <span class="pl-k">-&gt;</span> <span class="pl-k">Model</span>
-<span class="pl-en">update </span>msg model <span class="pl-k">=</span>
-    <span class="pl-k">case </span>msg <span class="pl-k">of</span>
-        <span class="pl-c1">NoOp</span> <span class="pl-k">-&gt;</span>
-            model
-
-        <span class="pl-c1">UpdateNumber</span> numberMsg <span class="pl-k">-&gt;</span>
-            <span class="pl-c1"><span class="pl-c1">{</span></span> model <span class="pl-k">|</span> numberModel <span class="pl-k">=</span> <span class="pl-c1">Number</span><span class="pl-k">.</span>update numberMsg model<span class="pl-k">.</span>numberModel <span class="pl-c1"><span class="pl-c1">}</span></span>
-
-        <span class="pl-c1">UpdateText</span> textMsg <span class="pl-k">-&gt;</span>
-            <span class="pl-c1"><span class="pl-c1">{</span></span> model <span class="pl-k">|</span> textModel <span class="pl-k">=</span> <span class="pl-c1">Text</span><span class="pl-k">.</span>update textMsg model<span class="pl-k">.</span>textModel <span class="pl-c1"><span class="pl-c1">}</span></span>
-</pre></div>
-      </section>
+        <h2>Text Input</h2>
+        <p>With the ability to set maximum length. You can also track the focus state of the element.</p>
+        <div id="text" class="demo-section"></div>
+        <h2>Number Input</h2>
+        <p>Only accept numeric input, with the ability to set maximum length, maximum value, and minimum value. You can also track the focus state of the element</p>
+        <div id="number" class="demo-section"></div>    
+        
+        <h2>Masked Input</h2>
+        <p>Text input with the ability to mask the input to a specific format/pattern.</p>
+        <div id="masked" class="demo-section"></div>
+        
+        <h2>Dropdown Element</h2>
+        <div id="dropdown" class="demo-section"></div>
+        
+        <h2>Multi Select Element</h2>
+        <p>The standard <code>&lt;select&gt;</code> element on <code>elm-lang/html</code> doesn't handle multiple selected options properly. This MultiSelect element is using custom decoder to get the selected options on a <code>change</code> event.</p>
+        <div id="multiSelect" class="demo-section"></div>
+        </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/abadi199">abadi199</a></p>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+    <script src="demo.js"></script>
+    <script>
+        Elm.DropdownDemo.embed(document.getElementById("dropdown"));
+        Elm.MultiSelectDemo.embed(document.getElementById("multiSelect"));
+        Elm.InputTextDemo.embed(document.getElementById("text"));
+        Elm.InputNumberDemo.embed(document.getElementById("number"));
+        Elm.MaskedInputTextDemo.embed(document.getElementById("masked"));
+    </script>          
   </body>
 </html>

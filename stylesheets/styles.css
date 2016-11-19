@@ -322,3 +322,38 @@ footer {
     color:#444;
   }
 }
+
+.demo-section {
+    border: 1px solid #e5e5e5;
+    padding: 1.5em 1.5em .5em;
+    margin: 1em 0 2em; 
+    background-color: #f8f8f8;
+    border-radius: 5px;
+}
+.demo-section ul {
+    padding: 0 1em;
+}
+label { 
+    font-weight: bold;
+}
+select {
+    border: 1px solid #ccc;
+    padding: .5rem;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+select[multiple] {
+    height: 7em;
+    vertical-align: middle;
+}
+input {
+    border: 1px solid #ccc;
+    padding: .5rem;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);                        
+    background-color: #fff;                                    
+}
+input.focused {
+    background-color: #ffa;
+}
+input, select { 
+    margin-left: .25em;
+}
