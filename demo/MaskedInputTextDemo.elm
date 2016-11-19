@@ -2,11 +2,10 @@ module MaskedInputTextDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form)
 import Html.Attributes exposing (style, for)
-import Html.App as Html
 import MaskedInput.Text as MaskedText
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { init = init

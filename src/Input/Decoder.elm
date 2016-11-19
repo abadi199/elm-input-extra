@@ -1,6 +1,6 @@
 module Input.Decoder exposing (eventDecoder)
 
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Json
 
 
 type alias Event =
@@ -13,8 +13,8 @@ type alias Event =
 
 eventDecoder : Json.Decoder Event
 eventDecoder =
-    Json.object4 Event
-        ("keyCode" := Json.int)
-        ("ctrlKey" := Json.bool)
-        ("altKey" := Json.bool)
-        ("metaKey" := Json.bool)
+    Json.map4 Event
+        (Json.field "keyCode" Json.int)
+        (Json.field "ctrlKey" Json.bool)
+        (Json.field "altKey" Json.bool)
+        (Json.field "metaKey" Json.bool)

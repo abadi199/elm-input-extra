@@ -8,7 +8,7 @@ module Input.Text exposing (Options, input, defaultOptions)
 
 import Html exposing (Attribute, Html)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
-import Html.Attributes as Attributes exposing (value, id, type')
+import Html.Attributes as Attributes exposing (value, id, type_)
 import Char exposing (fromCode, KeyCode)
 import String
 import Json.Decode as Json
@@ -84,7 +84,7 @@ input options attributes currentValue =
                 [ value currentValue
                 , onKeyDown options currentValue options.onInput
                 , onInput options.onInput
-                , type' "text"
+                , type_ "text"
                 ]
              )
                 |> List.append onFocusAttribute
@@ -108,18 +108,18 @@ onKeyDown options currentValue tagger =
                         (currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar))
                 in
                     if event.ctrlKey || event.altKey then
-                        Err "modifier key is pressed"
+                        Json.fail "modifier key is pressed"
                     else if List.any ((==) event.keyCode) allowedKeyCodes then
-                        Err "not arrow"
+                        Json.fail "not arrow"
                     else if (isValid newValue options) then
-                        Err "valid"
+                        Json.fail "valid"
                     else
-                        Ok event.keyCode
+                        Json.succeed event.keyCode
             )
 
         decoder =
-            filterKey
-                |> Json.customDecoder eventDecoder
+            eventDecoder
+                |> Json.andThen filterKey
                 |> Json.map (\_ -> tagger currentValue)
     in
         onWithOptions "keydown" eventOptions decoder

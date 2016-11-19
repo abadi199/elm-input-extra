@@ -2,11 +2,10 @@ module DropdownDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form)
 import Html.Attributes exposing (style, for)
-import Html.App as Html
 import Dropdown
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { init = init
@@ -82,4 +81,4 @@ update msg model =
             ( model, Cmd.none )
 
         DropdownChanged selectedValue ->
-            ( { model | selectedValue = Debug.log "selectedValue" selectedValue }, Cmd.none )
+            ( { model | selectedValue = selectedValue }, Cmd.none )

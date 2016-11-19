@@ -15,7 +15,7 @@ module MaskedInput.Text
 
 import Html exposing (Attribute, Html)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
-import Html.Attributes as Attributes exposing (value, id, type')
+import Html.Attributes as Attributes exposing (value, id, type_)
 import Char
 import String
 import Json.Decode as Json
@@ -116,7 +116,7 @@ input options attributes state currentValue =
                 , onInput (processInput options tokens state currentFormattedValue)
                 , onKeyDown currentFormattedValue tokens options.toMsg
                 , onKeyPress currentFormattedValue tokens options.toMsg
-                , type' "text"
+                , type_ "text"
                 ]
              )
                 |> List.append onFocusAttribute
@@ -152,13 +152,13 @@ onKeyDown currentFormattedValue tokens toMsg =
 
         filterKey =
             (\event ->
-                Ok event.keyCode
+                Json.succeed event.keyCode
             )
 
         decoder =
-            filterKey
-                |> Json.customDecoder eventDecoder
-                |> Json.map (\keyCode -> toMsg <| State <| Debug.log "keydown" <| Just keyCode)
+            eventDecoder
+                |> Json.andThen filterKey
+                |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
     in
         onWithOptions "keydown" eventOptions decoder
 
@@ -174,18 +174,18 @@ onKeyPress currentFormattedValue tokens toMsg =
         filterKey =
             (\event ->
                 if event.ctrlKey || event.altKey then
-                    Err "modifier key is pressed"
+                    Json.fail "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Err "not arrow"
+                    Json.fail "not arrow"
                 else if String.length currentFormattedValue < List.length tokens then
-                    Err "accepting more input"
+                    Json.fail "accepting more input"
                 else
-                    Ok event.keyCode
+                    Json.succeed event.keyCode
             )
 
         decoder =
-            filterKey
-                |> Json.customDecoder eventDecoder
-                |> Json.map (\keyCode -> toMsg <| State <| Debug.log "keypress" <| Just keyCode)
+            eventDecoder
+                |> Json.andThen filterKey
+                |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
     in
         onWithOptions "keypress" eventOptions decoder

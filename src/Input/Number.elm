@@ -7,12 +7,12 @@ module Input.Number exposing (Options, input, defaultOptions)
 -}
 
 import Html exposing (Attribute, Html)
-import Html.Attributes exposing (style, type')
+import Html.Attributes exposing (style, type_)
 import Html.Events exposing (onWithOptions, keyCode)
 import Html.Attributes as Attributes exposing (value)
 import Char
 import String
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Json
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 
@@ -112,7 +112,7 @@ input options attributes currentValue =
                 , onKeyDown options currentValue
                 , Html.Events.onInput (String.toInt >> Result.toMaybe >> options.onInput)
                 , onChange options
-                , type' "number"
+                , type_ "number"
                 ]
              )
                 |> List.append onFocusAttribute
@@ -162,21 +162,21 @@ onKeyDown options currentValue =
         filterKey =
             (\event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
-                    Err "modifier key is pressed"
+                    Json.fail "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Err "allowedKeys"
+                    Json.fail "allowedKeys"
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    Err "numeric"
+                    Json.fail "numeric"
                 else
-                    Ok event.keyCode
+                    Json.succeed event.keyCode
             )
 
         decoder =
-            filterKey
-                |> Json.customDecoder eventDecoder
+            eventDecoder
+                |> Json.andThen filterKey
                 |> Json.map (\_ -> options.onInput currentValue)
     in
         onWithOptions "keydown" eventOptions decoder
