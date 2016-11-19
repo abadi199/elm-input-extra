@@ -1,5 +1,9 @@
 # Elm Input Extra
 
+Commonly used Html element with extra functionality.
+
+### [Live Demo](https://abadi199.github.io/elm-input-extra)
+
 ## Number Input
 
 Html input element that only accept numeric values.
