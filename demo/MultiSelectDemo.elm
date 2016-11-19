@@ -1,8 +1,8 @@
-module DropdownDemo exposing (main)
+module MultiSelectDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form, ul, li)
 import Html.Attributes exposing (style, for)
-import Dropdown
+import MultiSelect
 
 
 main : Program Never Model Msg
@@ -16,30 +16,31 @@ main =
 
 
 type alias Model =
-    { selectedValue : Maybe String
+    { selectedValue : List String
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { selectedValue = Nothing
+    ( { selectedValue = []
       }
     , Cmd.none
     )
 
 
-dropdownOptions : Dropdown.Options Msg
-dropdownOptions =
+multiSelectOptions : MultiSelect.Options Msg
+multiSelectOptions =
     let
         defaultOptions =
-            Dropdown.defaultOptions DropdownChanged
+            MultiSelect.defaultOptions MultiSelectChanged
     in
         { defaultOptions
             | items =
                 [ { value = "1", text = "One", enabled = True }
                 , { value = "2", text = "Two", enabled = True }
+                , { value = "3", text = "Three", enabled = True }
+                , { value = "4", text = "Four", enabled = True }
                 ]
-            , emptyItem = Just { value = "0", text = "[Please Select]", enabled = True }
         }
 
 
@@ -53,23 +54,23 @@ view model =
     form []
         [ p []
             [ label []
-                [ text "Dropdown: "
-                , Dropdown.dropdown
-                    dropdownOptions
+                [ text "MultiSelect: "
+                , MultiSelect.multiSelect
+                    multiSelectOptions
                     []
                     model.selectedValue
                 ]
             ]
         , p []
             [ ul []
-                [ li [] [ text "Selected Value: ", text <| Maybe.withDefault "Not Selected" model.selectedValue ] ]
+                [ li [] [ text "Selected Values: ", text <| toString model.selectedValue ] ]
             ]
         ]
 
 
 type Msg
     = NoOp
-    | DropdownChanged (Maybe String)
+    | MultiSelectChanged (List String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,5 +79,5 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        DropdownChanged selectedValue ->
+        MultiSelectChanged selectedValue ->
             ( { model | selectedValue = selectedValue }, Cmd.none )

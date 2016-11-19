@@ -1,7 +1,7 @@
 module InputNumberDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes exposing (style, for)
+import Html.Attributes as Html exposing (style, for)
 import Input.Number as Number
 
 
@@ -55,18 +55,7 @@ view model =
                 [ text "Number Input: "
                 , Number.input
                     inputOptions
-                    [ style
-                        [ ( "border", "1px solid #ccc" )
-                        , ( "padding", ".5rem" )
-                        , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
-                        , ( "background-color"
-                          , if model.hasFocus then
-                                "#ff0"
-                            else
-                                "#fff"
-                          )
-                        ]
-                    ]
+                    [ Html.classList [ ( "focused", model.hasFocus ) ] ]
                     model.value
                 ]
             ]

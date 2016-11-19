@@ -1,7 +1,7 @@
 module MaskedInputTextDemo exposing (main)
 
 import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes exposing (style, for)
+import Html.Attributes as Html exposing (style, for)
 import MaskedInput.Text as MaskedText
 
 
@@ -51,21 +51,10 @@ view model =
     form []
         [ p []
             [ label []
-                [ text "Text Input: "
+                [ text "Masked Input: "
                 , MaskedText.input
                     inputOptions
-                    [ style
-                        [ ( "border", "1px solid #ccc" )
-                        , ( "padding", ".5rem" )
-                        , ( "box-shadow", "inset 0 1px 1px rgba(0,0,0,.075);" )
-                        , ( "background-color"
-                          , if model.hasFocus then
-                                "#ff0"
-                            else
-                                "#fff"
-                          )
-                        ]
-                    ]
+                    [ Html.classList [ ( "focused", model.hasFocus ) ] ]
                     model.state
                     model.value
                 ]
@@ -74,7 +63,6 @@ view model =
             [ ul []
                 [ li [] [ text "Pattern: ", text inputOptions.pattern ]
                 , li [] [ text "Value: ", text model.value ]
-                , li [] [ text "State: ", text <| toString model.state ]
                 , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
                 ]
             ]

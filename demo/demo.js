@@ -8809,24 +8809,7 @@ var _abadi199$elm_input_extra$DropdownDemo$view = function (model) {
 								_0: A3(
 									_abadi199$elm_input_extra$Dropdown$dropdown,
 									_abadi199$elm_input_extra$DropdownDemo$dropdownOptions,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
-											{
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'border', _1: '1px solid #ccc'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'padding', _1: '.5rem'},
-													_1: {
-														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'box-shadow', _1: 'inset 0 1px 1px rgba(0,0,0,.075);'},
-														_1: {ctor: '[]'}
-													}
-												}
-											}),
-										_1: {ctor: '[]'}
-									},
+									{ctor: '[]'},
 									model.selectedValue),
 								_1: {ctor: '[]'}
 							}
@@ -9381,27 +9364,11 @@ var _abadi199$elm_input_extra$InputNumberDemo$view = function (model) {
 									_abadi199$elm_input_extra$InputNumberDemo$inputOptions,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
+										_0: _elm_lang$html$Html_Attributes$classList(
 											{
 												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'border', _1: '1px solid #ccc'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'padding', _1: '.5rem'},
-													_1: {
-														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'box-shadow', _1: 'inset 0 1px 1px rgba(0,0,0,.075);'},
-														_1: {
-															ctor: '::',
-															_0: {
-																ctor: '_Tuple2',
-																_0: 'background-color',
-																_1: model.hasFocus ? '#ff0' : '#fff'
-															},
-															_1: {ctor: '[]'}
-														}
-													}
-												}
+												_0: {ctor: '_Tuple2', _0: 'focused', _1: model.hasFocus},
+												_1: {ctor: '[]'}
 											}),
 										_1: {ctor: '[]'}
 									},
@@ -9599,27 +9566,11 @@ var _abadi199$elm_input_extra$InputTextDemo$view = function (model) {
 									_abadi199$elm_input_extra$InputTextDemo$inputOptions,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
+										_0: _elm_lang$html$Html_Attributes$classList(
 											{
 												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'border', _1: '1px solid #ccc'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'padding', _1: '.5rem'},
-													_1: {
-														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'box-shadow', _1: 'inset 0 1px 1px rgba(0,0,0,.075);'},
-														_1: {
-															ctor: '::',
-															_0: {
-																ctor: '_Tuple2',
-																_0: 'background-color',
-																_1: model.hasFocus ? '#ff0' : '#fff'
-															},
-															_1: {ctor: '[]'}
-														}
-													}
-												}
+												_0: {ctor: '_Tuple2', _0: 'focused', _1: model.hasFocus},
+												_1: {ctor: '[]'}
 											}),
 										_1: {ctor: '[]'}
 									},
@@ -11643,7 +11594,7 @@ var _abadi199$elm_input_extra$MaskedInputTextDemo$view = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Text Input: '),
+							_0: _elm_lang$html$Html$text('Masked Input: '),
 							_1: {
 								ctor: '::',
 								_0: A4(
@@ -11651,27 +11602,11 @@ var _abadi199$elm_input_extra$MaskedInputTextDemo$view = function (model) {
 									_abadi199$elm_input_extra$MaskedInputTextDemo$inputOptions,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
+										_0: _elm_lang$html$Html_Attributes$classList(
 											{
 												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'border', _1: '1px solid #ccc'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'padding', _1: '.5rem'},
-													_1: {
-														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'box-shadow', _1: 'inset 0 1px 1px rgba(0,0,0,.075);'},
-														_1: {
-															ctor: '::',
-															_0: {
-																ctor: '_Tuple2',
-																_0: 'background-color',
-																_1: model.hasFocus ? '#ff0' : '#fff'
-															},
-															_1: {ctor: '[]'}
-														}
-													}
-												}
+												_0: {ctor: '_Tuple2', _0: 'focused', _1: model.hasFocus},
+												_1: {ctor: '[]'}
 											}),
 										_1: {ctor: '[]'}
 									},
@@ -11727,31 +11662,15 @@ var _abadi199$elm_input_extra$MaskedInputTextDemo$view = function (model) {
 											{ctor: '[]'},
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html$text('State: '),
+												_0: _elm_lang$html$Html$text('Has Focus: '),
 												_1: {
 													ctor: '::',
 													_0: _elm_lang$html$Html$text(
-														_elm_lang$core$Basics$toString(model.state)),
+														_elm_lang$core$Basics$toString(model.hasFocus)),
 													_1: {ctor: '[]'}
 												}
 											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$li,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Has Focus: '),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html$text(
-															_elm_lang$core$Basics$toString(model.hasFocus)),
-														_1: {ctor: '[]'}
-													}
-												}),
-											_1: {ctor: '[]'}
-										}
+										_1: {ctor: '[]'}
 									}
 								}
 							}),
@@ -11764,6 +11683,265 @@ var _abadi199$elm_input_extra$MaskedInputTextDemo$view = function (model) {
 var _abadi199$elm_input_extra$MaskedInputTextDemo$main = _elm_lang$html$Html$program(
 	{init: _abadi199$elm_input_extra$MaskedInputTextDemo$init, update: _abadi199$elm_input_extra$MaskedInputTextDemo$update, view: _abadi199$elm_input_extra$MaskedInputTextDemo$view, subscriptions: _abadi199$elm_input_extra$MaskedInputTextDemo$subscriptions})();
 var _abadi199$elm_input_extra$MaskedInputTextDemo$NoOp = {ctor: 'NoOp'};
+
+var _abadi199$elm_input_extra$MultiSelect$defaultOptions = function (onChange) {
+	return {
+		items: {ctor: '[]'},
+		onChange: onChange
+	};
+};
+var _abadi199$elm_input_extra$MultiSelect$Item = F3(
+	function (a, b, c) {
+		return {value: a, text: b, enabled: c};
+	});
+var _abadi199$elm_input_extra$MultiSelect$Options = F2(
+	function (a, b) {
+		return {items: a, onChange: b};
+	});
+var _abadi199$elm_input_extra$MultiSelect$Option = F3(
+	function (a, b, c) {
+		return {value: a, text: b, selected: c};
+	});
+var _abadi199$elm_input_extra$MultiSelect$optionDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_abadi199$elm_input_extra$MultiSelect$Option,
+	A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'text', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'selected', _elm_lang$core$Json_Decode$bool));
+var _abadi199$elm_input_extra$MultiSelect$optionsDecoder = function () {
+	var loop = F2(
+		function (idx, xs) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (_p0) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						_elm_lang$core$Json_Decode$succeed(xs),
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (x) {
+								return A2(
+									loop,
+									idx + 1,
+									{ctor: '::', _0: x, _1: xs});
+							},
+							_p0));
+				},
+				_elm_lang$core$Json_Decode$maybe(
+					A2(
+						_elm_lang$core$Json_Decode$field,
+						_elm_lang$core$Basics$toString(idx),
+						_abadi199$elm_input_extra$MultiSelect$optionDecoder)));
+		});
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		_elm_lang$core$List$reverse,
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'options',
+			A2(
+				loop,
+				0,
+				{ctor: '[]'})));
+}();
+var _abadi199$elm_input_extra$MultiSelect$selectedOptionsDecoder = function () {
+	var filterSelected = function (options) {
+		return A2(
+			_elm_lang$core$List$map,
+			function (_) {
+				return _.value;
+			},
+			A2(
+				_elm_lang$core$List$filter,
+				function (_) {
+					return _.selected;
+				},
+				options));
+	};
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		filterSelected,
+		A2(_elm_lang$core$Json_Decode$field, 'target', _abadi199$elm_input_extra$MultiSelect$optionsDecoder));
+}();
+var _abadi199$elm_input_extra$MultiSelect$onChange = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _abadi199$elm_input_extra$MultiSelect$selectedOptionsDecoder));
+};
+var _abadi199$elm_input_extra$MultiSelect$multiSelect = F3(
+	function (options, attributes, currentValue) {
+		var isSelected = function (value) {
+			return A2(
+				_elm_lang$core$List$any,
+				F2(
+					function (x, y) {
+						return _elm_lang$core$Native_Utils.eq(x, y);
+					})(value),
+				currentValue);
+		};
+		var toOption = function (_p1) {
+			var _p2 = _p1;
+			var _p3 = _p2.value;
+			return A2(
+				_elm_lang$html$Html$option,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$value(_p3),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$selected(
+							isSelected(_p3)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$disabled(!_p2.enabled),
+							_1: {ctor: '[]'}
+						}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p2.text),
+					_1: {ctor: '[]'}
+				});
+		};
+		return A2(
+			_elm_lang$html$Html$select,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				attributes,
+				{
+					ctor: '::',
+					_0: _abadi199$elm_input_extra$MultiSelect$onChange(options.onChange),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$multiple(true),
+						_1: {ctor: '[]'}
+					}
+				}),
+			A2(_elm_lang$core$List$map, toOption, options.items));
+	});
+
+var _abadi199$elm_input_extra$MultiSelectDemo$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		if (_p0.ctor === 'NoOp') {
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		} else {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{selectedValue: _p0._0}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		}
+	});
+var _abadi199$elm_input_extra$MultiSelectDemo$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _abadi199$elm_input_extra$MultiSelectDemo$init = {
+	ctor: '_Tuple2',
+	_0: {
+		selectedValue: {ctor: '[]'}
+	},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _abadi199$elm_input_extra$MultiSelectDemo$Model = function (a) {
+	return {selectedValue: a};
+};
+var _abadi199$elm_input_extra$MultiSelectDemo$MultiSelectChanged = function (a) {
+	return {ctor: 'MultiSelectChanged', _0: a};
+};
+var _abadi199$elm_input_extra$MultiSelectDemo$multiSelectOptions = function () {
+	var defaultOptions = _abadi199$elm_input_extra$MultiSelect$defaultOptions(_abadi199$elm_input_extra$MultiSelectDemo$MultiSelectChanged);
+	return _elm_lang$core$Native_Utils.update(
+		defaultOptions,
+		{
+			items: {
+				ctor: '::',
+				_0: {value: '1', text: 'One', enabled: true},
+				_1: {
+					ctor: '::',
+					_0: {value: '2', text: 'Two', enabled: true},
+					_1: {
+						ctor: '::',
+						_0: {value: '3', text: 'Three', enabled: true},
+						_1: {
+							ctor: '::',
+							_0: {value: '4', text: 'Four', enabled: true},
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			}
+		});
+}();
+var _abadi199$elm_input_extra$MultiSelectDemo$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$form,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$label,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('MultiSelect: '),
+							_1: {
+								ctor: '::',
+								_0: A3(
+									_abadi199$elm_input_extra$MultiSelect$multiSelect,
+									_abadi199$elm_input_extra$MultiSelectDemo$multiSelectOptions,
+									{ctor: '[]'},
+									model.selectedValue),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$p,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$ul,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$li,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Selected Values: '),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												_elm_lang$core$Basics$toString(model.selectedValue)),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _abadi199$elm_input_extra$MultiSelectDemo$main = _elm_lang$html$Html$program(
+	{init: _abadi199$elm_input_extra$MultiSelectDemo$init, update: _abadi199$elm_input_extra$MultiSelectDemo$update, view: _abadi199$elm_input_extra$MultiSelectDemo$view, subscriptions: _abadi199$elm_input_extra$MultiSelectDemo$subscriptions})();
+var _abadi199$elm_input_extra$MultiSelectDemo$NoOp = {ctor: 'NoOp'};
 
 var Elm = {};
 Elm['DropdownDemo'] = Elm['DropdownDemo'] || {};
@@ -11781,6 +11959,10 @@ if (typeof _abadi199$elm_input_extra$InputTextDemo$main !== 'undefined') {
 Elm['MaskedInputTextDemo'] = Elm['MaskedInputTextDemo'] || {};
 if (typeof _abadi199$elm_input_extra$MaskedInputTextDemo$main !== 'undefined') {
     _abadi199$elm_input_extra$MaskedInputTextDemo$main(Elm['MaskedInputTextDemo'], 'MaskedInputTextDemo', undefined);
+}
+Elm['MultiSelectDemo'] = Elm['MultiSelectDemo'] || {};
+if (typeof _abadi199$elm_input_extra$MultiSelectDemo$main !== 'undefined') {
+    _abadi199$elm_input_extra$MultiSelectDemo$main(Elm['MultiSelectDemo'], 'MultiSelectDemo', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

@@ -2,22 +2,84 @@
 <html>
     <head>
         <title>Demo for elm-input-extra</title>
+        <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro|Source+Code+Pro">
         <style>
+            body {
+                font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+                background-color: #eee;
+                color: #555;
+            }
             .demo-section {
                 border: 1px solid #ccc;
                 padding: 0 1em;
                 margin: 1em 0; 
+                background-color: #fff;
+            }
+
+            .demo-section ul {
+                padding: 0 1em;
+            }
+            label { 
+                font-weight: bold;
+            }
+
+            select {
+                border: 1px solid #ccc;
+                padding: .5rem;
+                box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            }
+
+            select[multiple] {
+                height: 7em;
+                vertical-align: middle;
+            }
+
+            input {
+                border: 1px solid #ccc;
+                padding: .5rem;
+                box-shadow: inset 0 1px 1px rgba(0,0,0,.075);                        
+                background-color: #fff;                                    
+            }
+
+            input.focused {
+                background-color: #ffa;
+            }
+
+            input, select { 
+                margin-left: .25em;
             }
         </style>
     </head>
     <body>
-        <div id="dropdown" class="demo-section"></div>
-        <div id="text" class="demo-section"></div>
-        <div id="number" class="demo-section"></div>
-        <div id="masked" class="demo-section"></div>
+        <h1>Elm Input Extra</h1>
+        <p>Commonly used <code>Html</code> form element</p>
+        <div class="demo-section">
+            <h2>Text Input</h2>
+            <p>With the ability to set maximum length. You can also track the focus state of the element.</p>
+            <div id="text"></div>
+        </div>
+        <div class="demo-section">
+            <h2>Number Input</h2>
+            <p>Only accept numeric input, with the ability to set maximum length, maximum value, and minimum value. You can also track the focus state of the element</p>
+            <div id="number"></div>
+        </div>
+        <div class="demo-section">
+            <h2>Masked Input</h2>
+            <p>Text input with the ability to mask the input to a specific format/pattern.</p>
+            <div id="masked"></div>
+        </div>
+        <div class="demo-section">
+            <h2>Dropdown Element</h2>
+            <div id="dropdown"></div>
+        </div>
+        <div class="demo-section">
+            <h2>Multi Select Element</h2>
+            <div id="multiSelect"></div>
+        </div>
         <script src="demo.js"></script>
         <script>
             Elm.DropdownDemo.embed(document.getElementById("dropdown"));
+            Elm.MultiSelectDemo.embed(document.getElementById("multiSelect"));
             Elm.InputTextDemo.embed(document.getElementById("text"));
             Elm.InputNumberDemo.embed(document.getElementById("number"));
             Elm.MaskedInputTextDemo.embed(document.getElementById("masked"));
