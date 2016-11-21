@@ -5,7 +5,10 @@ module Diff
         , Change(..)
         )
 
-{-| Functions to compare strings to produce a list of changes.  This is an
+{-| NOTES: This is a copy of https://github.com/avh4/elm-diff/blob/master/src/Diff.elm with an upgrade to Elm 0.18. 
+I need to copy it here since it's not upgraded to Elm 0.18 yet.
+Replace this with package dependency once it's upgraded to Elm 0.18.
+Functions to compare strings to produce a list of changes.  This is an
 implementation of the [Hunt-McIlroy](http://en.wikipedia.org/wiki/Hunt%E2%80%93McIlroy_algorithm)
 diff algorithm.
 
