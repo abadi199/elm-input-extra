@@ -1,5 +1,5 @@
 {
-    "version": "3.1.0",
+    "version": "3.2.0",
     "summary": "Html input element with extra features",
     "repository": "https://github.com/abadi199/elm-input-extra.git",
     "license": "BSD3",
@@ -10,7 +10,8 @@
         "Input.Number",
         "Input.Text",
         "Dropdown",
-        "MultiSelect"
+        "MultiSelect",
+        "MaskedInput.Text"
     ],
     "dependencies": {
         "elm-community/list-extra": "4.0.0 <= v < 5.0.0",

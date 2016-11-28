@@ -9,6 +9,9 @@ module MaskedInput.Text
 
 {-| Masked Text input
 
+# State
+@docs State, initialState
+
 # View
 @docs input, Options, defaultOptions
 -}
