@@ -21,11 +21,13 @@ import Input.KeyCode exposing (allowedKeyCodes)
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
  * `onInput` is the Msg tagger for the onInput event.
  * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
+ * `type_` is the type of the HTML input element.
 -}
 type alias Options msg =
     { maxLength : Maybe Int
     , onInput : String -> msg
     , hasFocus : Maybe (Bool -> msg)
+    , type_ : String
     }
 
 
@@ -37,6 +39,7 @@ Value:
     { maxLength = Nothing
     , onInput = onInput
     , hasFocus = Nothing
+    , type_ = "text"
     }
 
 -}
@@ -45,6 +48,7 @@ defaultOptions onInput =
     { maxLength = Nothing
     , onInput = onInput
     , hasFocus = Nothing
+    , type_ = "text"
     }
 
 
@@ -87,7 +91,7 @@ input options attributes currentValue =
                 [ value currentValue
                 , onKeyDown options currentValue options.onInput
                 , onInput options.onInput
-                , type_ "text"
+                , type_ options.type_
                 ]
              )
                 |> List.append onFocusAttribute
