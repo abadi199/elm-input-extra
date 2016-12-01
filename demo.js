@@ -4102,8 +4102,8 @@ var _abadi199$elm_input_extra$Diff$orCrash = function (m) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Diff',
 			{
-				start: {line: 114, column: 5},
-				end: {line: 119, column: 37}
+				start: {line: 117, column: 5},
+				end: {line: 122, column: 37}
 			},
 			_p0)('No options');
 	}
@@ -9013,11 +9013,6 @@ var _abadi199$elm_input_extra$Input_Number$onKeyDown = F2(
 				_elm_lang$core$String$fromChar(
 					_elm_lang$core$Char$fromCode(keyCode)));
 		};
-		var updatedNumber = function (keyCode) {
-			return _elm_lang$core$Result$toMaybe(
-				_elm_lang$core$String$toInt(
-					newValue(keyCode)));
-		};
 		var filterKey = function (event) {
 			return (event.ctrlKey || (event.altKey || event.metaKey)) ? _elm_lang$core$Json_Decode$fail('modifier key is pressed') : (A2(
 				_elm_lang$core$List$any,
@@ -9271,7 +9266,7 @@ var _abadi199$elm_input_extra$Input_Text$input = F3(
 									_0: _elm_lang$html$Html_Events$onInput(options.onInput),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_0: _elm_lang$html$Html_Attributes$type_(options.type_),
 										_1: {ctor: '[]'}
 									}
 								}
@@ -9280,11 +9275,11 @@ var _abadi199$elm_input_extra$Input_Text$input = F3(
 			{ctor: '[]'});
 	});
 var _abadi199$elm_input_extra$Input_Text$defaultOptions = function (onInput) {
-	return {maxLength: _elm_lang$core$Maybe$Nothing, onInput: onInput, hasFocus: _elm_lang$core$Maybe$Nothing};
+	return {maxLength: _elm_lang$core$Maybe$Nothing, onInput: onInput, hasFocus: _elm_lang$core$Maybe$Nothing, type_: 'text'};
 };
-var _abadi199$elm_input_extra$Input_Text$Options = F3(
-	function (a, b, c) {
-		return {maxLength: a, onInput: b, hasFocus: c};
+var _abadi199$elm_input_extra$Input_Text$Options = F4(
+	function (a, b, c, d) {
+		return {maxLength: a, onInput: b, hasFocus: c, type_: d};
 	});
 
 var _abadi199$elm_input_extra$InputNumberDemo$update = F2(
@@ -11352,6 +11347,205 @@ var _abadi199$elm_input_extra$MaskedInput_Pattern$OtherUpdate = {ctor: 'OtherUpd
 var _abadi199$elm_input_extra$MaskedInput_Pattern$Delete = {ctor: 'Delete'};
 var _abadi199$elm_input_extra$MaskedInput_Pattern$Backspace = {ctor: 'Backspace'};
 
+var _abadi199$elm_input_extra$MaskedInput_Number$processInput = F5(
+	function (options, tokens, state, oldValue, value) {
+		var oldNumber = _elm_lang$core$Result$toMaybe(
+			_elm_lang$core$String$toInt(
+				A2(_abadi199$elm_input_extra$MaskedInput_Pattern$extract, tokens, oldValue)));
+		var adjustment = function () {
+			var _p0 = state;
+			_v0_2:
+			do {
+				if (_p0._0.ctor === 'Just') {
+					switch (_p0._0._0) {
+						case 8:
+							return _abadi199$elm_input_extra$MaskedInput_Pattern$Backspace;
+						case 46:
+							return _abadi199$elm_input_extra$MaskedInput_Pattern$Delete;
+						default:
+							break _v0_2;
+					}
+				} else {
+					break _v0_2;
+				}
+			} while(false);
+			return _abadi199$elm_input_extra$MaskedInput_Pattern$OtherUpdate;
+		}();
+		var newValue = A4(_abadi199$elm_input_extra$MaskedInput_Pattern$adjust, tokens, adjustment, oldValue, value);
+		var newNumber = _elm_lang$core$Result$toMaybe(
+			_elm_lang$core$String$toInt(newValue));
+		var _p1 = {ctor: '_Tuple2', _0: newValue, _1: newNumber};
+		_v1_0:
+		do {
+			if (_p1._1.ctor === 'Just') {
+				if (_p1._0 === '') {
+					break _v1_0;
+				} else {
+					return options.onInput(newNumber);
+				}
+			} else {
+				if (_p1._0 === '') {
+					break _v1_0;
+				} else {
+					return options.onInput(oldNumber);
+				}
+			}
+		} while(false);
+		return options.onInput(_elm_lang$core$Maybe$Nothing);
+	});
+var _abadi199$elm_input_extra$MaskedInput_Number$defaultOptions = F2(
+	function (onInput, toMsg) {
+		return {
+			pattern: '',
+			inputCharacter: _elm_lang$core$Native_Utils.chr('#'),
+			onInput: onInput,
+			toMsg: toMsg,
+			hasFocus: _elm_lang$core$Maybe$Nothing
+		};
+	});
+var _abadi199$elm_input_extra$MaskedInput_Number$Options = F5(
+	function (a, b, c, d, e) {
+		return {pattern: a, inputCharacter: b, onInput: c, toMsg: d, hasFocus: e};
+	});
+var _abadi199$elm_input_extra$MaskedInput_Number$State = function (a) {
+	return {ctor: 'State', _0: a};
+};
+var _abadi199$elm_input_extra$MaskedInput_Number$initialState = _abadi199$elm_input_extra$MaskedInput_Number$State(_elm_lang$core$Maybe$Nothing);
+var _abadi199$elm_input_extra$MaskedInput_Number$onKeyDown = F3(
+	function (currentFormattedValue, tokens, toMsg) {
+		var filterKey = function (event) {
+			return _elm_lang$core$Json_Decode$succeed(event.keyCode);
+		};
+		var decoder = A2(
+			_elm_lang$core$Json_Decode$map,
+			function (keyCode) {
+				return toMsg(
+					_abadi199$elm_input_extra$MaskedInput_Number$State(
+						_elm_lang$core$Maybe$Just(keyCode)));
+			},
+			A2(_elm_lang$core$Json_Decode$andThen, filterKey, _abadi199$elm_input_extra$Input_Decoder$eventDecoder));
+		var eventOptions = {stopPropagation: false, preventDefault: false};
+		return A3(_elm_lang$html$Html_Events$onWithOptions, 'keydown', eventOptions, decoder);
+	});
+var _abadi199$elm_input_extra$MaskedInput_Number$onKeyPress = F3(
+	function (currentFormattedValue, tokens, toMsg) {
+		var isNumber = function (keyCode) {
+			return (_elm_lang$core$Native_Utils.cmp(keyCode, 48) > -1) && (_elm_lang$core$Native_Utils.cmp(keyCode, 57) < 1);
+		};
+		var isNumPad = function (keyCode) {
+			return (_elm_lang$core$Native_Utils.cmp(keyCode, 96) > -1) && (_elm_lang$core$Native_Utils.cmp(keyCode, 105) < 1);
+		};
+		var filterKey = function (event) {
+			return (event.ctrlKey || event.altKey) ? _elm_lang$core$Json_Decode$fail('modifier key is pressed') : (A2(
+				_elm_lang$core$List$any,
+				F2(
+					function (x, y) {
+						return _elm_lang$core$Native_Utils.eq(x, y);
+					})(event.keyCode),
+				_abadi199$elm_input_extra$Input_KeyCode$allowedKeyCodes) ? _elm_lang$core$Json_Decode$fail('not arrow') : ((isNumber(event.keyCode) || isNumPad(event.keyCode)) ? _elm_lang$core$Json_Decode$fail('numeric') : ((_elm_lang$core$Native_Utils.cmp(
+				_elm_lang$core$String$length(currentFormattedValue),
+				_elm_lang$core$List$length(tokens)) < 0) ? _elm_lang$core$Json_Decode$fail('accepting more input') : _elm_lang$core$Json_Decode$succeed(event.keyCode))));
+		};
+		var decoder = A2(
+			_elm_lang$core$Json_Decode$map,
+			function (keyCode) {
+				return toMsg(
+					_abadi199$elm_input_extra$MaskedInput_Number$State(
+						_elm_lang$core$Maybe$Just(keyCode)));
+			},
+			A2(_elm_lang$core$Json_Decode$andThen, filterKey, _abadi199$elm_input_extra$Input_Decoder$eventDecoder));
+		var eventOptions = {stopPropagation: false, preventDefault: true};
+		return A3(_elm_lang$html$Html_Events$onWithOptions, 'keypress', eventOptions, decoder);
+	});
+var _abadi199$elm_input_extra$MaskedInput_Number$input = F4(
+	function (options, attributes, state, currentValue) {
+		var onBlurAttribute = A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$Maybe$map,
+				A2(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						}),
+					{ctor: '[]'}),
+				A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$html$Html_Events$onBlur,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (f) {
+							return f(false);
+						},
+						options.hasFocus))));
+		var onFocusAttribute = A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$Maybe$map,
+				A2(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						}),
+					{ctor: '[]'}),
+				A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$html$Html_Events$onFocus,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (f) {
+							return f(true);
+						},
+						options.hasFocus))));
+		var tokens = A2(_abadi199$elm_input_extra$MaskedInput_Pattern$parse, options.inputCharacter, options.pattern);
+		var currentFormattedValue = A2(
+			_abadi199$elm_input_extra$MaskedInput_Pattern$format,
+			tokens,
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				'',
+				A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, currentValue)));
+		var inputAttributes = A2(
+			_elm_lang$core$List$append,
+			onBlurAttribute,
+			A2(
+				_elm_lang$core$List$append,
+				onFocusAttribute,
+				A2(
+					_elm_lang$core$List$append,
+					attributes,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$value(currentFormattedValue),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onInput(
+								A4(_abadi199$elm_input_extra$MaskedInput_Number$processInput, options, tokens, state, currentFormattedValue)),
+							_1: {
+								ctor: '::',
+								_0: A3(_abadi199$elm_input_extra$MaskedInput_Number$onKeyDown, currentFormattedValue, tokens, options.toMsg),
+								_1: {
+									ctor: '::',
+									_0: A3(_abadi199$elm_input_extra$MaskedInput_Number$onKeyPress, currentFormattedValue, tokens, options.toMsg),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					})));
+		return A2(
+			_elm_lang$html$Html$input,
+			inputAttributes,
+			{ctor: '[]'});
+	});
+
 var _abadi199$elm_input_extra$MaskedInput_Text$processInput = F5(
 	function (options, tokens, state, oldValue, value) {
 		var adjustment = function () {
@@ -11515,6 +11709,175 @@ var _abadi199$elm_input_extra$MaskedInput_Text$input = F4(
 						}))),
 			{ctor: '[]'});
 	});
+
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'NoOp':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'InputChanged':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{value: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'FocusChanged':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{hasFocus: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{state: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$init = {
+	ctor: '_Tuple2',
+	_0: {value: _elm_lang$core$Maybe$Nothing, hasFocus: false, state: _abadi199$elm_input_extra$MaskedInput_Number$initialState},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$Model = F3(
+	function (a, b, c) {
+		return {value: a, state: b, hasFocus: c};
+	});
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$InputStateChanged = function (a) {
+	return {ctor: 'InputStateChanged', _0: a};
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$FocusChanged = function (a) {
+	return {ctor: 'FocusChanged', _0: a};
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$InputChanged = function (a) {
+	return {ctor: 'InputChanged', _0: a};
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$inputOptions = function () {
+	var defaultOptions = A2(_abadi199$elm_input_extra$MaskedInput_Number$defaultOptions, _abadi199$elm_input_extra$MaskedInputNumberDemo$InputChanged, _abadi199$elm_input_extra$MaskedInputNumberDemo$InputStateChanged);
+	return _elm_lang$core$Native_Utils.update(
+		defaultOptions,
+		{
+			pattern: '(###) ###-####',
+			hasFocus: _elm_lang$core$Maybe$Just(_abadi199$elm_input_extra$MaskedInputNumberDemo$FocusChanged)
+		});
+}();
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$form,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$label,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Masked Input: '),
+							_1: {
+								ctor: '::',
+								_0: A4(
+									_abadi199$elm_input_extra$MaskedInput_Number$input,
+									_abadi199$elm_input_extra$MaskedInputNumberDemo$inputOptions,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$classList(
+											{
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'focused', _1: model.hasFocus},
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									},
+									model.state,
+									model.value),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$p,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$ul,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$li,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Pattern: '),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(_abadi199$elm_input_extra$MaskedInputNumberDemo$inputOptions.pattern),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$li,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Value: '),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(
+													_elm_lang$core$Basics$toString(model.value)),
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$li,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Has Focus: '),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(
+														_elm_lang$core$Basics$toString(model.hasFocus)),
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$main = _elm_lang$html$Html$program(
+	{init: _abadi199$elm_input_extra$MaskedInputNumberDemo$init, update: _abadi199$elm_input_extra$MaskedInputNumberDemo$update, view: _abadi199$elm_input_extra$MaskedInputNumberDemo$view, subscriptions: _abadi199$elm_input_extra$MaskedInputNumberDemo$subscriptions})();
+var _abadi199$elm_input_extra$MaskedInputNumberDemo$NoOp = {ctor: 'NoOp'};
 
 var _abadi199$elm_input_extra$MaskedInputTextDemo$update = F2(
 	function (msg, model) {
@@ -11955,6 +12318,10 @@ if (typeof _abadi199$elm_input_extra$InputNumberDemo$main !== 'undefined') {
 Elm['InputTextDemo'] = Elm['InputTextDemo'] || {};
 if (typeof _abadi199$elm_input_extra$InputTextDemo$main !== 'undefined') {
     _abadi199$elm_input_extra$InputTextDemo$main(Elm['InputTextDemo'], 'InputTextDemo', undefined);
+}
+Elm['MaskedInputNumberDemo'] = Elm['MaskedInputNumberDemo'] || {};
+if (typeof _abadi199$elm_input_extra$MaskedInputNumberDemo$main !== 'undefined') {
+    _abadi199$elm_input_extra$MaskedInputNumberDemo$main(Elm['MaskedInputNumberDemo'], 'MaskedInputNumberDemo', undefined);
 }
 Elm['MaskedInputTextDemo'] = Elm['MaskedInputTextDemo'] || {};
 if (typeof _abadi199$elm_input_extra$MaskedInputTextDemo$main !== 'undefined') {
