@@ -147,11 +147,6 @@ onKeyDown options currentValue =
                 |> String.fromChar
                 |> (++) (Maybe.withDefault "" <| Maybe.map toString <| currentValue)
 
-        updatedNumber keyCode =
-            newValue keyCode
-                |> String.toInt
-                |> Result.toMaybe
-
         isNumPad keyCode =
             keyCode
                 >= 96

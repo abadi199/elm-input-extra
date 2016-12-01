@@ -4,6 +4,8 @@ Commonly used Html element with extra functionality.
 
 ### [Live Demo](https://abadi199.github.io/elm-input-extra)
 
+See the [source code](https://github.com/abadi199/elm-input-extra/tree/master/demo) of the demo page.
+ 
 ## Number Input
 
 Html input element that only accept numeric values.
