@@ -11371,7 +11371,13 @@ var _abadi199$elm_input_extra$MaskedInput_Number$processInput = F5(
 			} while(false);
 			return _abadi199$elm_input_extra$MaskedInput_Pattern$OtherUpdate;
 		}();
-		var newValue = A4(_abadi199$elm_input_extra$MaskedInput_Pattern$adjust, tokens, adjustment, oldValue, value);
+		var newValue = A2(
+			_abadi199$elm_input_extra$MaskedInput_Pattern$extract,
+			tokens,
+			A2(
+				_abadi199$elm_input_extra$MaskedInput_Pattern$format,
+				tokens,
+				A4(_abadi199$elm_input_extra$MaskedInput_Pattern$adjust, tokens, adjustment, oldValue, value)));
 		var newNumber = _elm_lang$core$Result$toMaybe(
 			_elm_lang$core$String$toInt(newValue));
 		var _p1 = {ctor: '_Tuple2', _0: newValue, _1: newNumber};
