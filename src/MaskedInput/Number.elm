@@ -166,6 +166,8 @@ processInput options tokens state oldValue value =
 
         newValue =
             Pattern.adjust tokens adjustment oldValue value
+                |> Pattern.format tokens
+                |> Pattern.extract tokens
 
         newNumber =
             newValue
