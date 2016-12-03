@@ -3,6 +3,7 @@ module MultiSelect exposing (multiSelect, Item, Options, defaultOptions)
 {-| MultiSelect
 
 `<select>` element with multiple selection.
+This will properly give you the selected values for `onChange` event since the core `onChange` on `select` doesn't.
 
 Options
 @docs Item, Options, defaultOptions

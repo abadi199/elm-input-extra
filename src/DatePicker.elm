@@ -1,4 +1,13 @@
-module DatePicker exposing (Options, datePicker, defaultOptions, State, initialState)
+module DatePicker
+    exposing
+        ( Options
+        , NameOfDays
+        , datePicker
+        , defaultOptions
+        , State
+        , initialState
+        , initialCmd
+        )
 
 {-| DatePicker
 
@@ -10,14 +19,49 @@ module DatePicker exposing (Options, datePicker, defaultOptions, State, initialS
 -}
 
 import Date exposing (Date)
-import Html exposing (Html, input, div, span, text, button)
-import Html.Events exposing (onFocus, onBlur)
-import Html.Attributes exposing (class, type_)
+import Html exposing (Html, input, div, span, text, button, table, tr, td, th, thead, tbody)
+import Html.Events exposing (onFocus, onBlur, onClick, onInput)
+import Html.Attributes exposing (class, type_, style)
+import Json.Decode
+import Task
+import DatePicker.Formatter
+import DatePicker.Svg
+import Date.Extra.Core
+import Date.Extra.Duration
+
+
+-- MODEL
 
 
 type alias Options msg =
     { onChange : Maybe Date -> msg
     , toMsg : State -> msg
+    , formatter : Date -> String
+    , titleFormatter : Date -> String
+    , nameOfDays : NameOfDays
+    }
+
+
+type alias NameOfDays =
+    { sunday : String
+    , monday : String
+    , tuesday : String
+    , wednesday : String
+    , thursday : String
+    , friday : String
+    , saturday : String
+    }
+
+
+defaultNameOfDays : NameOfDays
+defaultNameOfDays =
+    { sunday = "Su"
+    , monday = "Mo"
+    , tuesday = "Tu"
+    , wednesday = "We"
+    , thursday = "Th"
+    , friday = "Fr"
+    , saturday = "Sa"
     }
 
 
@@ -25,6 +69,9 @@ defaultOptions : (Maybe Date -> msg) -> (State -> msg) -> Options msg
 defaultOptions onChange toMsg =
     { onChange = onChange
     , toMsg = toMsg
+    , formatter = DatePicker.Formatter.defaultFormatter
+    , titleFormatter = DatePicker.Formatter.titleFormatter
+    , nameOfDays = defaultNameOfDays
     }
 
 
@@ -33,51 +80,213 @@ type State
 
 
 type alias StateValue =
-    { inputFocused : Bool, dialogFocused : Bool }
+    { inputFocused : Bool
+    , dialogFocused : Bool
+    , event : String
+    , today : Maybe Date
+    , titleDate : Maybe Date
+    }
 
 
 initialState : State
 initialState =
-    State { inputFocused = False, dialogFocused = False }
+    State
+        { inputFocused = False
+        , dialogFocused = False
+        , event = ""
+        , today = Nothing
+        , titleDate = Nothing
+        }
+
+
+initialCmd : (State -> msg) -> State -> Cmd msg
+initialCmd toMsg state =
+    let
+        stateValue =
+            getStateValue state
+
+        setDate now =
+            State
+                { stateValue
+                    | today = Just now
+                    , titleDate = Just <| Date.Extra.Core.toFirstOfMonth now
+                }
+    in
+        Task.perform
+            (setDate >> toMsg)
+            Date.now
+
+
+getStateValue : State -> StateValue
+getStateValue state =
+    case state of
+        State stateValue ->
+            stateValue
+
+
+
+-- VIEWS
 
 
 datePicker : Options msg -> List (Html.Attribute msg) -> State -> Maybe Date -> Html msg
 datePicker options attributes state currentDate =
     let
         stateValue =
-            case state of
-                State stateValue ->
-                    stateValue
+            getStateValue state
 
         datePickerAttributes =
             attributes
-                ++ [ onFocus <| options.toMsg <| State { stateValue | inputFocused = True }
-                   , onBlur <| options.toMsg <| State { stateValue | inputFocused = True }
+                ++ [ onFocus <| options.toMsg <| State { stateValue | inputFocused = True, event = "onFocus" }
+                   , onBlur <|
+                        options.toMsg <|
+                            State
+                                { stateValue
+                                    | inputFocused =
+                                        if stateValue.dialogFocused then
+                                            True
+                                        else
+                                            False
+                                    , event = "onBlur"
+                                }
+                   , onChange options.onChange
                    ]
     in
-        div [ class "elm-datepicker" ]
+        div
+            [ class "elm-datepicker"
+            ]
             [ input datePickerAttributes []
             , if stateValue.inputFocused || stateValue.dialogFocused then
-                datePickerDialog options stateValue currentDate
+                datePickerDialog options state currentDate
               else
                 text ""
             ]
 
 
-datePickerDialog : Options msg -> StateValue -> Maybe Date -> Html msg
-datePickerDialog options stateValue currentDate =
-    div
-        [ class "elm-datepicker--dialog"
-        , onFocus <| options.toMsg <| State { stateValue | dialogFocused = True }
-        , onBlur <| options.toMsg <| State { stateValue | dialogFocused = False }
-        ]
-        [ span [ class "elm-datepicker--arrow-left" ]
-            [ button [ type_ "button" ] [ text "<<" ]
+datePickerDialog : Options msg -> State -> Maybe Date -> Html msg
+datePickerDialog options state currentDate =
+    let
+        stateValue =
+            getStateValue state
+
+        title =
+            span
+                [ class "elm-datepicker--title"
+                , onMouseUp <| switchMode options state
+                ]
+                [ text <| Maybe.withDefault "N/A" <| Maybe.map options.titleFormatter <| stateValue.titleDate ]
+
+        previousButton =
+            span
+                [ class "elm-datepicker--arrow-left"
+                , onMouseUp <| gotoPreviousMonth options state
+                ]
+                [ DatePicker.Svg.leftArrow ]
+
+        nextButton =
+            span
+                [ class "elm-datepicker--arrow-right"
+                , onMouseUp <| gotoNextMonth options state
+                ]
+                [ DatePicker.Svg.rightArrow ]
+    in
+        div
+            [ onMouseDown <| options.toMsg <| State { stateValue | dialogFocused = True, event = "onMouseDown" }
+            , onMouseUp <| options.toMsg <| State { stateValue | dialogFocused = False, inputFocused = True, event = "onMouseUp" }
+            , class
+                "elm-datepicker--dialog"
             ]
-        , span [ class "elm-datepicker--title" ]
-            [ button [ type_ "button" ] [ text "November 2011" ]
+            [ previousButton
+            , title
+            , nextButton
+            , calendar options state
             ]
-        , span [ class "elm-datepicker--arrow-right" ]
-            [ button [ type_ "button" ] [ text ">>" ]
+
+
+calendar : Options msg -> State -> Html msg
+calendar options state =
+    let
+        header =
+            thead [ class "days" ]
+                [ tr
+                    []
+                    [ th [] [ text options.nameOfDays.sunday ]
+                    , th [] [ text options.nameOfDays.monday ]
+                    , th [] [ text options.nameOfDays.tuesday ]
+                    , th [] [ text options.nameOfDays.wednesday ]
+                    , th [] [ text options.nameOfDays.thursday ]
+                    , th [] [ text options.nameOfDays.friday ]
+                    , th [] [ text options.nameOfDays.saturday ]
+                    ]
+                ]
+    in
+        table [ class "calendar" ]
+            [ header
             ]
-        ]
+
+
+
+-- EVENTS
+
+
+onChange : (Maybe Date -> msg) -> Html.Attribute msg
+onChange tagger =
+    Html.Events.on "change" (Json.Decode.map (Date.fromString >> Result.toMaybe >> tagger) Html.Events.targetValue)
+
+
+onMouseDown : msg -> Html.Attribute msg
+onMouseDown msg =
+    let
+        eventOptions =
+            { preventDefault = True
+            , stopPropagation = True
+            }
+    in
+        Html.Events.onWithOptions "mousedown" eventOptions (Json.Decode.succeed msg)
+
+
+onMouseUp : msg -> Html.Attribute msg
+onMouseUp msg =
+    let
+        eventOptions =
+            { preventDefault = True
+            , stopPropagation = True
+            }
+    in
+        Html.Events.onWithOptions "mouseup" eventOptions (Json.Decode.succeed msg)
+
+
+
+-- ACTIONS
+
+
+switchMode : Options msg -> State -> msg
+switchMode options state =
+    let
+        stateValue =
+            getStateValue state
+    in
+        options.toMsg <| State { stateValue | dialogFocused = False, event = "title" }
+
+
+gotoNextMonth : Options msg -> State -> msg
+gotoNextMonth options state =
+    let
+        stateValue =
+            getStateValue state
+
+        updatedTitleDate =
+            Maybe.map (Date.Extra.Duration.add Date.Extra.Duration.Month 1) stateValue.titleDate
+    in
+        options.toMsg <| State { stateValue | dialogFocused = False, event = "next", titleDate = updatedTitleDate }
+
+
+gotoPreviousMonth : Options msg -> State -> msg
+gotoPreviousMonth options state =
+    let
+        stateValue =
+            getStateValue state
+
+        updatedTitleDate =
+            Maybe.map (Date.Extra.Duration.add Date.Extra.Duration.Month -1) stateValue.titleDate
+    in
+        options.toMsg <| State { stateValue | dialogFocused = False, event = "previous", titleDate = updatedTitleDate }

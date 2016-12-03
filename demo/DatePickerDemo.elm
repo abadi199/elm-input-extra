@@ -25,7 +25,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( { value = Nothing, datePickerState = DatePicker.initialState }
-    , Cmd.none
+    , DatePicker.initialCmd DatePickerStateChanged DatePicker.initialState
     )
 
 
