@@ -20,6 +20,7 @@ module DatePicker
 
 import Date exposing (Date)
 import Html exposing (Html, input, div, span, text, button, table, tr, td, th, thead, tbody)
+import Html.Attributes exposing (value)
 import Html.Events exposing (onFocus, onBlur, onClick, onInput)
 import Json.Decode
 import Task
@@ -227,6 +228,7 @@ datePicker options attributes state currentDate =
                                     , event = "onBlur"
                                 }
                    , onChange options.onChange
+                   , value <| Maybe.withDefault "" <| Maybe.map options.formatter <| currentDate
                    ]
     in
         div
@@ -249,12 +251,7 @@ datePickerDialog options state currentDate =
         title =
             let
                 date =
-                    case currentDate of
-                        Nothing ->
-                            stateValue.titleDate
-
-                        Just _ ->
-                            currentDate
+                    stateValue.titleDate
             in
                 span
                     [ class [ Title ]
@@ -310,20 +307,16 @@ calendar options state currentDate =
 
             Just titleDate ->
                 let
-                    selectedDate =
-                        currentDate
-                            |> Maybe.withDefault titleDate
-
                     firstDay =
-                        Date.Extra.Core.toFirstOfMonth selectedDate
+                        Date.Extra.Core.toFirstOfMonth titleDate
                             |> Date.dayOfWeek
                             |> DatePicker.DateUtils.dayToInt options.firstDayOfWeek
 
                     month =
-                        Date.month selectedDate
+                        Date.month titleDate
 
                     year =
-                        Date.year selectedDate
+                        Date.year titleDate
 
                     days =
                         DatePicker.DateUtils.generateCalendar options.firstDayOfWeek month year
@@ -342,7 +335,17 @@ calendar options state currentDate =
                                 ]
                             ]
 
-                    toDay day =
+                    isHighlighted day =
+                        currentDate
+                            |> Maybe.map (\current -> day.day == Date.day current && month == Date.month current && year == Date.year current)
+                            |> Maybe.withDefault False
+
+                    isToday day =
+                        stateValue.today
+                            |> Maybe.map (\today -> day.day == Date.day today && month == Date.month today && year == Date.year today)
+                            |> Maybe.withDefault False
+
+                    toCell day =
                         td
                             [ class
                                 (case day.monthType of
@@ -350,18 +353,41 @@ calendar options state currentDate =
                                         [ PreviousMonth ]
 
                                     DatePicker.DateUtils.Current ->
-                                        [ CurrentMonth ]
+                                        CurrentMonth
+                                            :: if isHighlighted day then
+                                                [ SelectedDate ]
+                                               else if isToday day then
+                                                [ Today ]
+                                               else
+                                                []
 
                                     DatePicker.DateUtils.Next ->
                                         [ NextMonth ]
                                 )
                             , onClick <| options.onChange <| Just <| DatePicker.DateUtils.toDate year month day
-                            , onMouseUp <| options.toMsg <| State { stateValue | dialogFocused = False, inputFocused = False, event = "onChange" }
+                            , State
+                                { stateValue
+                                    | dialogFocused = False
+                                    , inputFocused = False
+                                    , event = "onChange"
+                                }
+                                |> (\updatedState ->
+                                        case day.monthType of
+                                            DatePicker.DateUtils.Previous ->
+                                                gotoPreviousMonth options updatedState
+
+                                            DatePicker.DateUtils.Next ->
+                                                gotoNextMonth options updatedState
+
+                                            DatePicker.DateUtils.Current ->
+                                                options.toMsg updatedState
+                                   )
+                                |> onMouseUp
                             ]
                             [ text <| toString day.day ]
 
                     toWeekRow week =
-                        tr [] (List.map toDay week)
+                        tr [] (List.map toCell week)
 
                     body =
                         tbody [ class [ Days ] ]

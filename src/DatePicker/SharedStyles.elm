@@ -26,3 +26,5 @@ type CssClasses
     | Dialog
     | DatePicker
     | Footer
+    | SelectedDate
+    | Today

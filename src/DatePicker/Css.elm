@@ -28,7 +28,7 @@ dialogCss =
     [ (.) Header
         [ borderBoxMixin
         , backgroundColor (lightGray)
-        , padding (px 7)
+        , padding2 (px 10) (px 7)
         , position relative
         , children
             [ (.) ArrowLeft
@@ -56,8 +56,12 @@ dialogCss =
             [ thead
                 []
             , td
-                [ dayMixin ]
-            , selector "td:hover" [ backgroundColor highlightedDay ]
+                [ dayMixin
+                , hover
+                    [ backgroundColor highlightedDay
+                    , highlightMixin
+                    ]
+                ]
             , th
                 [ dayMixin
                 , backgroundColor (lightGray)
@@ -69,14 +73,36 @@ dialogCss =
             , (.) NextMonth
                 [ color fadeText
                 ]
+            , (.) SelectedDate
+                [ property "box-shadow" "inset 0 0 10px 3px #3276b1"
+                , backgroundColor selectedDate
+                , color (hex "#fff")
+                , highlightMixin
+                ]
+            , (.) Today
+                [ property "box-shadow" "inset 0 0 7px 0 #76abd9"
+                , highlightMixin
+                , hover
+                    [ backgroundColor highlightSelectedDay ]
+                ]
             ]
         ]
     , (.) Footer
         [ textAlign center
         , backgroundColor lightGray
-        , padding (px 8)
+        , padding2 (px 10) (px 7)
         ]
     ]
+
+
+highlightSelectedDay : Css.Color
+highlightSelectedDay =
+    hex "#d5e5f3"
+
+
+selectedDate : Css.Color
+selectedDate =
+    hex "#428bca"
 
 
 fadeText : Css.Color
@@ -102,7 +128,7 @@ highlightedDay =
 dayMixin : Css.Mixin
 dayMixin =
     mixin
-        [ padding2 (px 7) (px 8)
+        [ padding4 (px 7) (px 7) (px 7) (px 9)
         , textAlign right
         , border (px 0)
         , cursor pointer
@@ -124,3 +150,8 @@ arrowMixin =
 borderBoxMixin : Css.Mixin
 borderBoxMixin =
     mixin [ boxSizing borderBox ]
+
+
+highlightMixin : Css.Mixin
+highlightMixin =
+    mixin [ borderRadius (px 4) ]
