@@ -2,6 +2,7 @@ module DatePicker.Formatter
     exposing
         ( titleFormatter
         , defaultFormatter
+        , fullDateFormatter
         )
 
 import Date exposing (Date)
@@ -17,3 +18,8 @@ titleFormatter =
 defaultFormatter : Date -> String
 defaultFormatter =
     Date.Extra.Format.format config "%m/%d/%Y"
+
+
+fullDateFormatter : Date -> String
+fullDateFormatter =
+    Date.Extra.Format.format config "%A, %B %d, %Y"

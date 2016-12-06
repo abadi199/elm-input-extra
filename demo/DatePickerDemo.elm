@@ -4,6 +4,8 @@ import Html exposing (Html, text, p, label, form, ul, li)
 import Html.Attributes as Html exposing (style, for)
 import DatePicker
 import Date exposing (Date)
+import Css
+import DatePicker.Css
 
 
 main : Program Never Model Msg
@@ -45,23 +47,29 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    form []
-        [ p []
-            [ label []
-                [ text "Date Picker : "
-                , DatePicker.datePicker
-                    datePickerOptions
-                    []
-                    model.datePickerState
-                    model.value
+    let
+        { css } =
+            Css.compile [ DatePicker.Css.css ]
+    in
+        form []
+            [ Html.node "style" [] [ Html.text css ]
+            , p
+                []
+                [ label []
+                    [ text "Date Picker : "
+                    , DatePicker.datePicker
+                        datePickerOptions
+                        []
+                        model.datePickerState
+                        model.value
+                    ]
+                ]
+            , p []
+                [ ul []
+                    [ li [] [ text "Value: ", text <| toString model.value ]
+                    ]
                 ]
             ]
-        , p []
-            [ ul []
-                [ li [] [ text "Value: ", text <| toString model.value ]
-                ]
-            ]
-        ]
 
 
 type Msg

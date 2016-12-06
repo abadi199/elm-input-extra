@@ -21,7 +21,6 @@ module DatePicker
 import Date exposing (Date)
 import Html exposing (Html, input, div, span, text, button, table, tr, td, th, thead, tbody)
 import Html.Events exposing (onFocus, onBlur, onClick, onInput)
-import Html.Attributes exposing (class, type_, style, classList)
 import Json.Decode
 import Task
 import DatePicker.Formatter
@@ -30,6 +29,7 @@ import DatePicker.DateUtils
 import Date.Extra.Core
 import Date.Extra.Duration
 import List.Extra
+import DatePicker.SharedStyles exposing (datepickerNamespace, CssClasses(..))
 
 
 -- MODEL
@@ -38,10 +38,11 @@ import List.Extra
 type alias Options msg =
     { onChange : Maybe Date -> msg
     , toMsg : State -> msg
-    , formatter : Date -> String
-    , titleFormatter : Date -> String
     , nameOfDays : NameOfDays
     , firstDayOfWeek : Date.Day
+    , formatter : Date -> String
+    , titleFormatter : Date -> String
+    , fullDateFormatter : Date -> String
     }
 
 
@@ -72,10 +73,11 @@ defaultOptions : (Maybe Date -> msg) -> (State -> msg) -> Options msg
 defaultOptions onChange toMsg =
     { onChange = onChange
     , toMsg = toMsg
-    , formatter = DatePicker.Formatter.defaultFormatter
-    , titleFormatter = DatePicker.Formatter.titleFormatter
     , nameOfDays = defaultNameOfDays
     , firstDayOfWeek = Date.Sun
+    , formatter = DatePicker.Formatter.defaultFormatter
+    , titleFormatter = DatePicker.Formatter.titleFormatter
+    , fullDateFormatter = DatePicker.Formatter.fullDateFormatter
     }
 
 
@@ -200,6 +202,10 @@ gotoPreviousMonth options state =
 -- VIEWS
 
 
+{ id, class, classList } =
+    datepickerNamespace
+
+
 datePicker : Options msg -> List (Html.Attribute msg) -> State -> Maybe Date -> Html msg
 datePicker options attributes state currentDate =
     let
@@ -224,7 +230,7 @@ datePicker options attributes state currentDate =
                    ]
     in
         div
-            [ class "elm-datepicker"
+            [ class [ DatePicker ]
             ]
             [ input datePickerAttributes []
             , if stateValue.inputFocused || stateValue.dialogFocused then
@@ -241,22 +247,35 @@ datePickerDialog options state currentDate =
             getStateValue state
 
         title =
-            span
-                [ class "elm-datepicker--title"
-                , onMouseUp <| switchMode options state
-                ]
-                [ text <| Maybe.withDefault "N/A" <| Maybe.map options.titleFormatter <| stateValue.titleDate ]
+            let
+                date =
+                    case currentDate of
+                        Nothing ->
+                            stateValue.titleDate
+
+                        Just _ ->
+                            currentDate
+            in
+                span
+                    [ class [ Title ]
+                    , onMouseUp <| switchMode options state
+                    ]
+                    [ date
+                        |> Maybe.map options.titleFormatter
+                        |> Maybe.withDefault "N/A"
+                        |> text
+                    ]
 
         previousButton =
             span
-                [ class "elm-datepicker--arrow-left"
+                [ class [ ArrowLeft ]
                 , onMouseUp <| gotoPreviousMonth options state
                 ]
                 [ DatePicker.Svg.leftArrow ]
 
         nextButton =
             span
-                [ class "elm-datepicker--arrow-right"
+                [ class [ ArrowRight ]
                 , onMouseUp <| gotoNextMonth options state
                 ]
                 [ DatePicker.Svg.rightArrow ]
@@ -265,17 +284,22 @@ datePickerDialog options state currentDate =
             [ onMouseDown <| options.toMsg <| State { stateValue | dialogFocused = True, event = "onMouseDown" }
             , onMouseUp <| options.toMsg <| State { stateValue | dialogFocused = False, inputFocused = True, event = "onMouseUp" }
             , class
-                "elm-datepicker--dialog"
+                [ Dialog ]
             ]
-            [ previousButton
-            , title
-            , nextButton
-            , calendar options state
+            [ div [ class [ Header ] ]
+                [ previousButton
+                , title
+                , nextButton
+                ]
+            , calendar options state currentDate
+            , div
+                [ class [ Footer ] ]
+                [ currentDate |> Maybe.map options.fullDateFormatter |> Maybe.withDefault "" |> text ]
             ]
 
 
-calendar : Options msg -> State -> Html msg
-calendar options state =
+calendar : Options msg -> State -> Maybe Date -> Html msg
+calendar options state currentDate =
     let
         stateValue =
             getStateValue state
@@ -286,22 +310,26 @@ calendar options state =
 
             Just titleDate ->
                 let
+                    selectedDate =
+                        currentDate
+                            |> Maybe.withDefault titleDate
+
                     firstDay =
-                        Date.Extra.Core.toFirstOfMonth titleDate
+                        Date.Extra.Core.toFirstOfMonth selectedDate
                             |> Date.dayOfWeek
                             |> DatePicker.DateUtils.dayToInt options.firstDayOfWeek
 
                     month =
-                        Date.month titleDate
+                        Date.month selectedDate
 
                     year =
-                        Date.year titleDate
+                        Date.year selectedDate
 
                     days =
                         DatePicker.DateUtils.generateCalendar options.firstDayOfWeek month year
 
                     header =
-                        thead [ class "days-of-week" ]
+                        thead [ class [ DaysOfWeek ] ]
                             [ tr
                                 []
                                 [ th [] [ text options.nameOfDays.sunday ]
@@ -319,13 +347,13 @@ calendar options state =
                             [ class
                                 (case day.monthType of
                                     DatePicker.DateUtils.Previous ->
-                                        "previous-month"
+                                        [ PreviousMonth ]
 
                                     DatePicker.DateUtils.Current ->
-                                        "current-month"
+                                        [ CurrentMonth ]
 
                                     DatePicker.DateUtils.Next ->
-                                        "next-month"
+                                        [ NextMonth ]
                                 )
                             , onClick <| options.onChange <| Just <| DatePicker.DateUtils.toDate year month day
                             , onMouseUp <| options.toMsg <| State { stateValue | dialogFocused = False, inputFocused = False, event = "onChange" }
@@ -336,13 +364,13 @@ calendar options state =
                         tr [] (List.map toDay week)
 
                     body =
-                        tbody [ class "days" ]
+                        tbody [ class [ Days ] ]
                             (days
                                 |> List.Extra.groupsOf 7
                                 |> List.map toWeekRow
                             )
                 in
-                    table [ class "calendar" ]
+                    table [ class [ Calendar ] ]
                         [ header
                         , body
                         ]
