@@ -133,7 +133,7 @@ Html.div []
 
 ## DatePicker
 
-This element requires an additional css that can be downloaded from [here](https://raw.githubusercontent.com/abadi199/elm-input-extra/datepicker/styles.css), or if you use [rtfeldman/elm-css](package.elm-lang.org/packages/rtfeldman/elm-css/latest), you can include `DatePicker.Css.css` into your Stylesheets.
+This element requires an additional css that can be downloaded from [here](https://raw.githubusercontent.com/abadi199/elm-input-extra/datepicker/styles.css), or if you use [rtfeldman/elm-css](http://package.elm-lang.org/packages/rtfeldman/elm-css/latest), you can include `DatePicker.Css.css` into your Stylesheets.
 
 In order to set the inital month of the calendar to current month, you will need to run `DatePicker.initialCmd` on your `init` function in your program.
 

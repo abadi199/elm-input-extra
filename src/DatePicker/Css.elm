@@ -1,11 +1,22 @@
 module DatePicker.Css exposing (css)
 
+{-| DatePicker.Css
+
+Using [rtfeldman/elm-css](http://package.elm-lang.org/packages/rtfeldman/elm-css/latest)
+Include this in your elm-css port module to be included in your project's css file.
+
+# Css
+@docs css
+-}
+
 import Css exposing (..)
 import Css.Elements exposing (..)
 import Css.Namespace exposing (namespace)
 import DatePicker.SharedStyles exposing (CssClasses(..), datepickerNamespace)
 
 
+{-| DatePicker's Css Stylesheet
+-}
 css : Css.Stylesheet
 css =
     (Css.stylesheet << namespace datepickerNamespace.name)
