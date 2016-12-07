@@ -1,6 +1,7 @@
 # Elm Input Extra
 
 Commonly used Html element with extra functionality.
+This library implements [reusable views](https://guide.elm-lang.org/reuse/more.html) instead of nested component, making it fit nicely in your `view` function, and doesn't complicate your `update` function. 
 
 ### [Live Demo](https://abadi199.github.io/elm-input-extra)
 
@@ -123,9 +124,58 @@ Html select element with multiple selection
 type Msg = MultiSelectChanged (List String)
 
 Html.div []
-    [ multiSelect
+    [ MultiSelect.multiSelect
         (defaultOptions MultiSelectChanged)
         [ class "my-multiSelect" ]
         model.selectedValues
     ]
+```
+
+## DatePicker
+
+This element requires an additional css that can be downloaded from [here](https://raw.githubusercontent.com/abadi199/elm-input-extra/datepicker/styles.css), or if you use [rtfeldman/elm-css](package.elm-lang.org/packages/rtfeldman/elm-css/latest), you can include `DatePicker.Css.css` into your Stylesheets.
+
+In order to set the inital month of the calendar to current month, you will need to run `DatePicker.initialCmd` on your `init` function in your program.
+
+For date formatter, the recommended library is [rluiten/elm-date-extra](http://package.elm-lang.org/packages/rluiten/elm-date-extra/latest)
+
+### Options 
+ * `onChange` is the message for when the selected value in the multi-select is changed. (Required)
+ * `toMsg` is the Msg for updating internal `State` of the DatePicker element. (Required)
+ * `nameOfDays` is the configuration for name of days in a week. (Optional)
+ * `firstDayOfWeek` is the first day of the week. Default: Sunday. (Optional)
+ * `formatter` is the Date to String formatter for the input value. Default: `"%m/%d/%Y"` (Optional)  
+ * `titleFormatter` is the Date to String formatter for the dialog's title. Default: `"%B %Y"` (Optional)
+ * `fullDateFormatter` is the Date to String formatter for the dialog's footer. Default:  `"%A, %B %d, %Y"` (Optional)
+### Example
+
+For a complete example, please see [demo/DatePickerDemo.elm](https://github.com/abadi199/elm-input-extra/blob/datepicker/demo/DatePickerDemo.elm).
+
+```elm
+type alias Model = { value : Maybe Date, datePickerState : DatePicker.State }
+
+type Msg 
+    = DatePickerChanged (Maybe Date) 
+    | DatePickerStateChanged DatePicker.State
+
+init = 
+    ( initalModel
+    , DatePicker.initCmd DatePickerStateChanged initialModel.datePickerState
+    )
+
+view model =
+    Html.div []
+        [ DatePicker.datePicker
+            datePickerOptions
+            [ class "my-datepicker" ]
+            model.datePickerState
+            model.value
+        ]
+
+update msg model =
+    case msg of
+        DatePickerChanged newDate -> 
+            { model | value = newDate } ! []
+        DatePickerStateChanged newState ->
+            { model | datePickerState = newState } ! []
 ```

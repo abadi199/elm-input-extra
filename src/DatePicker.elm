@@ -12,7 +12,10 @@ module DatePicker
 {-| DatePicker
 
 # View
-@docs datePicker, Options, defaultOptions
+@docs datePicker, Options, defaultOptions, NameOfDays
+
+# Initial
+@docs initialState, initialCmd
 
 # Internal State
 @docs State
@@ -29,7 +32,6 @@ import DatePicker.Svg
 import DatePicker.DateUtils
 import Date.Extra.Core
 import Date.Extra.Duration
-import Date.Extra.Create
 import List.Extra
 import DatePicker.SharedStyles exposing (datepickerNamespace, CssClasses(..))
 
@@ -37,6 +39,16 @@ import DatePicker.SharedStyles exposing (datepickerNamespace, CssClasses(..))
 -- MODEL
 
 
+{-| Configuration of the DatePicker
+ * `onChange` is the message for when the selected value in the multi-select is changed. (Required)
+ * `toMsg` is the Msg for updating internal `State` of the DatePicker element. (Required)
+ * `nameOfDays` is the configuration for name of days in a week. (Optional)
+ * `firstDayOfWeek` is the first day of the week. (Optional)
+ * `formatter` is the Date to String formatter for the input value. (Optional)
+ * `titleFormatter` is the Date to String formatter for the dialog's title. (Optional)
+ * `fullDateFormatter` is the Date to String formatter for the dialog's footer. (Optional)
+
+-}
 type alias Options msg =
     { onChange : Maybe Date -> msg
     , toMsg : State -> msg
@@ -48,6 +60,18 @@ type alias Options msg =
     }
 
 
+{-| Configuration for name of days in a week.
+
+This will be displayed as the calendar's header.
+Default:
+ * sunday = "Su"
+ * monday = "Mo"
+ * tuesday = "Tu"
+ * wednesday = "We"
+ * thursday = "Th"
+ * friday = "Fr"
+ * saturday = "Sa"
+-}
 type alias NameOfDays =
     { sunday : String
     , monday : String
@@ -71,6 +95,16 @@ defaultNameOfDays =
     }
 
 
+{-| Default configuration.
+
+Requires onChange and toMsg msgs.
+ * `nameOfDays` see `NameOfDays` for the default values.
+ * `firstDayOfWeek` Default: Sunday. (Optional)
+ * `formatter` Default: `"%m/%d/%Y"` (Optional)
+ * `titleFormatter`  Default: `"%B %Y"` (Optional)
+ * `fullDateFormatter` Default:  `"%A, %B %d, %Y"` (Optional)
+
+-}
 defaultOptions : (Maybe Date -> msg) -> (State -> msg) -> Options msg
 defaultOptions onChange toMsg =
     { onChange = onChange
@@ -83,6 +117,8 @@ defaultOptions onChange toMsg =
     }
 
 
+{-| Opaque type to keep track of the DatePicker internal state
+-}
 type State
     = State StateValue
 
@@ -96,6 +132,8 @@ type alias StateValue =
     }
 
 
+{-| Initial state of the DatePicker
+-}
 initialState : State
 initialState =
     State
@@ -107,6 +145,8 @@ initialState =
         }
 
 
+{-| Initial Cmd to set the initial month to be displayed in the datepicker to the current month.
+-}
 initialCmd : (State -> msg) -> State -> Cmd msg
 initialCmd toMsg state =
     let
@@ -209,6 +249,17 @@ gotoPreviousMonth options state =
     datepickerNamespace
 
 
+{-| DatePicker view function.
+
+Example:
+
+    DatePicker.datePicker
+            datePickerOptions
+            [ class "my-datepicker" ]
+            model.datePickerState
+            model.value
+
+-}
 datePicker : Options msg -> List (Html.Attribute msg) -> State -> Maybe Date -> Html msg
 datePicker options attributes state currentDate =
     let

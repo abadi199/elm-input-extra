@@ -11,7 +11,9 @@
         "Input.Text",
         "Dropdown",
         "MultiSelect",
-        "MaskedInput.Text"
+        "MaskedInput.Text",
+        "DatePicker",
+        "DatePicker.Css"
     ],
     "dependencies": {
         "elm-community/list-extra": "4.0.0 <= v < 5.0.0",
