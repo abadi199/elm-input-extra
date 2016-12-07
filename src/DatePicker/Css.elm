@@ -64,6 +64,8 @@ dialogCss =
         , property "border-spacing" "0"
         , property "border-width" "0"
         , property "table-layout" "fixed"
+        , width auto
+        , margin (px 0)
         , descendants
             [ thead
                 []
