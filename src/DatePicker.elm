@@ -21,7 +21,7 @@ module DatePicker
 import Date exposing (Date)
 import Html exposing (Html, input, div, span, text, button, table, tr, td, th, thead, tbody)
 import Html.Attributes exposing (value)
-import Html.Events exposing (onFocus, onBlur, onClick, onInput)
+import Html.Events exposing (onFocus, onBlur, onClick)
 import Json.Decode
 import Task
 import DatePicker.Formatter
@@ -29,6 +29,7 @@ import DatePicker.Svg
 import DatePicker.DateUtils
 import Date.Extra.Core
 import Date.Extra.Duration
+import Date.Extra.Create
 import List.Extra
 import DatePicker.SharedStyles exposing (datepickerNamespace, CssClasses(..))
 
@@ -137,7 +138,8 @@ getStateValue state =
 
 onChange : (Maybe Date -> msg) -> Html.Attribute msg
 onChange tagger =
-    Html.Events.on "change" (Json.Decode.map (Date.fromString >> Result.toMaybe >> tagger) Html.Events.targetValue)
+    Html.Events.on "change"
+        (Json.Decode.map (Date.fromString >> Result.toMaybe >> tagger) Html.Events.targetValue)
 
 
 onMouseDown : msg -> Html.Attribute msg
@@ -215,7 +217,7 @@ datePicker options attributes state currentDate =
 
         datePickerAttributes =
             attributes
-                ++ [ onFocus <| options.toMsg <| State { stateValue | inputFocused = True, event = "onFocus" }
+                ++ [ onFocus (datePickerFocused options stateValue currentDate)
                    , onBlur <|
                         options.toMsg <|
                             State
@@ -400,3 +402,23 @@ calendar options state currentDate =
                         [ header
                         , body
                         ]
+
+
+datePickerFocused : Options msg -> StateValue -> Maybe Date -> msg
+datePickerFocused options stateValue currentDate =
+    let
+        updatedTitleDate =
+            case currentDate of
+                Nothing ->
+                    stateValue.titleDate
+
+                Just _ ->
+                    currentDate
+    in
+        State
+            { stateValue
+                | inputFocused = True
+                , event = "onFocus"
+                , titleDate = updatedTitleDate
+            }
+            |> options.toMsg
