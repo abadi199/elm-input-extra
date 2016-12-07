@@ -17488,81 +17488,62 @@ var _abadi199$elm_input_extra$DatePicker_Css$dialogCss = {
 							_0: A2(_rtfeldman$elm_css$Css$property, 'table-layout', 'fixed'),
 							_1: {
 								ctor: '::',
-								_0: _rtfeldman$elm_css$Css$descendants(
-									{
+								_0: _rtfeldman$elm_css$Css$width(_rtfeldman$elm_css$Css$auto),
+								_1: {
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Css$margin(
+										_rtfeldman$elm_css$Css$px(0)),
+									_1: {
 										ctor: '::',
-										_0: _rtfeldman$elm_css$Css_Elements$thead(
-											{ctor: '[]'}),
-										_1: {
-											ctor: '::',
-											_0: _rtfeldman$elm_css$Css_Elements$td(
-												{
-													ctor: '::',
-													_0: _abadi199$elm_input_extra$DatePicker_Css$dayMixin,
-													_1: {
-														ctor: '::',
-														_0: _rtfeldman$elm_css$Css$hover(
-															{
-																ctor: '::',
-																_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$highlightedDay),
-																_1: {
-																	ctor: '::',
-																	_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
-																	_1: {ctor: '[]'}
-																}
-															}),
-														_1: {ctor: '[]'}
-													}
-												}),
-											_1: {
+										_0: _rtfeldman$elm_css$Css$descendants(
+											{
 												ctor: '::',
-												_0: _rtfeldman$elm_css$Css_Elements$th(
-													{
-														ctor: '::',
-														_0: _abadi199$elm_input_extra$DatePicker_Css$dayMixin,
-														_1: {
-															ctor: '::',
-															_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$lightGray),
-															_1: {
-																ctor: '::',
-																_0: _rtfeldman$elm_css$Css$fontWeight(_rtfeldman$elm_css$Css$normal),
-																_1: {
-																	ctor: '::',
-																	_0: A3(
-																		_rtfeldman$elm_css$Css$borderBottom3,
-																		_rtfeldman$elm_css$Css$px(1),
-																		_rtfeldman$elm_css$Css$solid,
-																		_abadi199$elm_input_extra$DatePicker_Css$darkGray),
-																	_1: {ctor: '[]'}
-																}
-															}
-														}
-													}),
+												_0: _rtfeldman$elm_css$Css_Elements$thead(
+													{ctor: '[]'}),
 												_1: {
 													ctor: '::',
-													_0: A2(
-														F2(
-															function (x, y) {
-																return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
-															}),
-														_abadi199$elm_input_extra$DatePicker_SharedStyles$PreviousMonth,
+													_0: _rtfeldman$elm_css$Css_Elements$td(
 														{
 															ctor: '::',
-															_0: _rtfeldman$elm_css$Css$color(_abadi199$elm_input_extra$DatePicker_Css$fadeText),
-															_1: {ctor: '[]'}
+															_0: _abadi199$elm_input_extra$DatePicker_Css$dayMixin,
+															_1: {
+																ctor: '::',
+																_0: _rtfeldman$elm_css$Css$hover(
+																	{
+																		ctor: '::',
+																		_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$highlightedDay),
+																		_1: {
+																			ctor: '::',
+																			_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
+																			_1: {ctor: '[]'}
+																		}
+																	}),
+																_1: {ctor: '[]'}
+															}
 														}),
 													_1: {
 														ctor: '::',
-														_0: A2(
-															F2(
-																function (x, y) {
-																	return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
-																}),
-															_abadi199$elm_input_extra$DatePicker_SharedStyles$NextMonth,
+														_0: _rtfeldman$elm_css$Css_Elements$th(
 															{
 																ctor: '::',
-																_0: _rtfeldman$elm_css$Css$color(_abadi199$elm_input_extra$DatePicker_Css$fadeText),
-																_1: {ctor: '[]'}
+																_0: _abadi199$elm_input_extra$DatePicker_Css$dayMixin,
+																_1: {
+																	ctor: '::',
+																	_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$lightGray),
+																	_1: {
+																		ctor: '::',
+																		_0: _rtfeldman$elm_css$Css$fontWeight(_rtfeldman$elm_css$Css$normal),
+																		_1: {
+																			ctor: '::',
+																			_0: A3(
+																				_rtfeldman$elm_css$Css$borderBottom3,
+																				_rtfeldman$elm_css$Css$px(1),
+																				_rtfeldman$elm_css$Css$solid,
+																				_abadi199$elm_input_extra$DatePicker_Css$darkGray),
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}
 															}),
 														_1: {
 															ctor: '::',
@@ -17571,24 +17552,11 @@ var _abadi199$elm_input_extra$DatePicker_Css$dialogCss = {
 																	function (x, y) {
 																		return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
 																	}),
-																_abadi199$elm_input_extra$DatePicker_SharedStyles$SelectedDate,
+																_abadi199$elm_input_extra$DatePicker_SharedStyles$PreviousMonth,
 																{
 																	ctor: '::',
-																	_0: A2(_rtfeldman$elm_css$Css$property, 'box-shadow', 'inset 0 0 10px 3px #3276b1'),
-																	_1: {
-																		ctor: '::',
-																		_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$selectedDate),
-																		_1: {
-																			ctor: '::',
-																			_0: _rtfeldman$elm_css$Css$color(
-																				_rtfeldman$elm_css$Css$hex('#fff')),
-																			_1: {
-																				ctor: '::',
-																				_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
-																				_1: {ctor: '[]'}
-																			}
-																		}
-																	}
+																	_0: _rtfeldman$elm_css$Css$color(_abadi199$elm_input_extra$DatePicker_Css$fadeText),
+																	_1: {ctor: '[]'}
 																}),
 															_1: {
 																ctor: '::',
@@ -17597,34 +17565,75 @@ var _abadi199$elm_input_extra$DatePicker_Css$dialogCss = {
 																		function (x, y) {
 																			return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
 																		}),
-																	_abadi199$elm_input_extra$DatePicker_SharedStyles$Today,
+																	_abadi199$elm_input_extra$DatePicker_SharedStyles$NextMonth,
 																	{
 																		ctor: '::',
-																		_0: A2(_rtfeldman$elm_css$Css$property, 'box-shadow', 'inset 0 0 7px 0 #76abd9'),
-																		_1: {
+																		_0: _rtfeldman$elm_css$Css$color(_abadi199$elm_input_extra$DatePicker_Css$fadeText),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {
+																	ctor: '::',
+																	_0: A2(
+																		F2(
+																			function (x, y) {
+																				return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
+																			}),
+																		_abadi199$elm_input_extra$DatePicker_SharedStyles$SelectedDate,
+																		{
 																			ctor: '::',
-																			_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
+																			_0: A2(_rtfeldman$elm_css$Css$property, 'box-shadow', 'inset 0 0 10px 3px #3276b1'),
 																			_1: {
 																				ctor: '::',
-																				_0: _rtfeldman$elm_css$Css$hover(
-																					{
+																				_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$selectedDate),
+																				_1: {
+																					ctor: '::',
+																					_0: _rtfeldman$elm_css$Css$color(
+																						_rtfeldman$elm_css$Css$hex('#fff')),
+																					_1: {
 																						ctor: '::',
-																						_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$highlightSelectedDay),
+																						_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
 																						_1: {ctor: '[]'}
-																					}),
-																				_1: {ctor: '[]'}
+																					}
+																				}
 																			}
-																		}
-																	}),
-																_1: {ctor: '[]'}
+																		}),
+																	_1: {
+																		ctor: '::',
+																		_0: A2(
+																			F2(
+																				function (x, y) {
+																					return A2(_rtfeldman$elm_css$Css_ops['.'], x, y);
+																				}),
+																			_abadi199$elm_input_extra$DatePicker_SharedStyles$Today,
+																			{
+																				ctor: '::',
+																				_0: A2(_rtfeldman$elm_css$Css$property, 'box-shadow', 'inset 0 0 7px 0 #76abd9'),
+																				_1: {
+																					ctor: '::',
+																					_0: _abadi199$elm_input_extra$DatePicker_Css$highlightMixin,
+																					_1: {
+																						ctor: '::',
+																						_0: _rtfeldman$elm_css$Css$hover(
+																							{
+																								ctor: '::',
+																								_0: _rtfeldman$elm_css$Css$backgroundColor(_abadi199$elm_input_extra$DatePicker_Css$highlightSelectedDay),
+																								_1: {ctor: '[]'}
+																							}),
+																						_1: {ctor: '[]'}
+																					}
+																				}
+																			}),
+																		_1: {ctor: '[]'}
+																	}
+																}
 															}
 														}
 													}
 												}
-											}
-										}
-									}),
-								_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
 							}
 						}
 					}
@@ -17860,7 +17869,7 @@ var _abadi199$elm_input_extra$DatePickerDemo$view = function (model) {
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Date Picker #1: '),
+								_0: _elm_lang$html$Html$text('Date Picker: '),
 								_1: {
 									ctor: '::',
 									_0: A4(
