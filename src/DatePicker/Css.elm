@@ -19,6 +19,7 @@ css =
             , border3 (px 1) solid (darkGray)
             , boxShadow4 (px 0) (px 5) (px 10) (rgba 0 0 0 0.2)
             , children dialogCss
+            , property "z-index" "1"
             ]
         ]
 

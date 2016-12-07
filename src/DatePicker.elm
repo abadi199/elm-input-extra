@@ -327,14 +327,7 @@ calendar options state currentDate =
                         thead [ class [ DaysOfWeek ] ]
                             [ tr
                                 []
-                                [ th [] [ text options.nameOfDays.sunday ]
-                                , th [] [ text options.nameOfDays.monday ]
-                                , th [] [ text options.nameOfDays.tuesday ]
-                                , th [] [ text options.nameOfDays.wednesday ]
-                                , th [] [ text options.nameOfDays.thursday ]
-                                , th [] [ text options.nameOfDays.friday ]
-                                , th [] [ text options.nameOfDays.saturday ]
-                                ]
+                                (dayNames options)
                             ]
 
                     isHighlighted day =
@@ -422,3 +415,24 @@ datePickerFocused options stateValue currentDate =
                 , titleDate = updatedTitleDate
             }
             |> options.toMsg
+
+
+dayNames : Options msg -> List (Html msg)
+dayNames options =
+    let
+        days =
+            [ th [] [ text options.nameOfDays.sunday ]
+            , th [] [ text options.nameOfDays.monday ]
+            , th [] [ text options.nameOfDays.tuesday ]
+            , th [] [ text options.nameOfDays.wednesday ]
+            , th [] [ text options.nameOfDays.thursday ]
+            , th [] [ text options.nameOfDays.friday ]
+            , th [] [ text options.nameOfDays.saturday ]
+            ]
+
+        shiftAmount =
+            DatePicker.DateUtils.dayToInt Date.Sun options.firstDayOfWeek
+    in
+        days
+            |> List.Extra.splitAt shiftAmount
+            |> \( head, tail ) -> tail ++ head

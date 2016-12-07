@@ -6,6 +6,8 @@ import DatePicker
 import Date exposing (Date)
 import Css
 import DatePicker.Css
+import Date.Extra.Format
+import Date.Extra.Config.Config_en_us exposing (config)
 
 
 main : Program Never Model Msg
@@ -21,13 +23,18 @@ main =
 type alias Model =
     { value : Maybe Date
     , datePickerState : DatePicker.State
+    , secondValue : Maybe Date
+    , secondDatePickerState : DatePicker.State
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { value = Nothing, datePickerState = DatePicker.initialState }
-    , DatePicker.initialCmd DatePickerStateChanged DatePicker.initialState
+    ( { value = Nothing, datePickerState = DatePicker.initialState, secondValue = Nothing, secondDatePickerState = DatePicker.initialState }
+    , Cmd.batch
+        [ DatePicker.initialCmd DatePickerStateChanged DatePicker.initialState
+        , DatePicker.initialCmd SecondDatePickerStateChanged DatePicker.initialState
+        ]
     )
 
 
@@ -36,6 +43,21 @@ datePickerOptions =
     let
         defaultOptions =
             DatePicker.defaultOptions DateChanged DatePickerStateChanged
+
+        nameOfDays =
+            defaultOptions.nameOfDays
+    in
+        defaultOptions
+
+
+secondDatePickerOptions : DatePicker.Options Msg
+secondDatePickerOptions =
+    let
+        defaultOptions =
+            DatePicker.defaultOptions SecondDateChanged SecondDatePickerStateChanged
+
+        nameOfDays =
+            defaultOptions.nameOfDays
     in
         defaultOptions
 
@@ -56,7 +78,7 @@ view model =
             , p
                 []
                 [ label []
-                    [ text "Date Picker : "
+                    [ text "Date Picker #1: "
                     , DatePicker.datePicker
                         datePickerOptions
                         []
@@ -64,9 +86,21 @@ view model =
                         model.value
                     ]
                 ]
+            , p
+                []
+                [ label []
+                    [ text "Date Picker #2 : "
+                    , DatePicker.datePicker
+                        secondDatePickerOptions
+                        []
+                        model.secondDatePickerState
+                        model.secondValue
+                    ]
+                ]
             , p []
                 [ ul []
                     [ li [] [ text "Value: ", text <| toString model.value ]
+                    , li [] [ text "Second Value: ", text <| toString model.secondValue ]
                     ]
                 ]
             ]
@@ -76,6 +110,8 @@ type Msg
     = NoOp
     | DateChanged (Maybe Date)
     | DatePickerStateChanged DatePicker.State
+    | SecondDateChanged (Maybe Date)
+    | SecondDatePickerStateChanged DatePicker.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,3 +125,9 @@ update msg model =
 
         DatePickerStateChanged state ->
             ( { model | datePickerState = state }, Cmd.none )
+
+        SecondDateChanged value ->
+            ( { model | secondValue = value }, Cmd.none )
+
+        SecondDatePickerStateChanged state ->
+            ( { model | secondDatePickerState = state }, Cmd.none )
