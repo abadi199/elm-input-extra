@@ -287,11 +287,7 @@ datePicker options attributes state currentDate =
                         options.toMsg <|
                             State
                                 { stateValue
-                                    | inputFocused =
-                                        if stateValue.dialogFocused then
-                                            True
-                                        else
-                                            False
+                                    | inputFocused = False
                                     , event = "onBlur"
                                 }
                    , onChange options.onChange
