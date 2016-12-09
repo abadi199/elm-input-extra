@@ -6,6 +6,7 @@ module DatePicker
         , defaultOptions
         , State
         , initialState
+        , initialStateWithToday
         , initialCmd
         )
 
@@ -15,7 +16,7 @@ module DatePicker
 @docs datePicker, Options, defaultOptions, NameOfDays
 
 # Initial
-@docs initialState, initialCmd
+@docs initialState, initialStateWithToday, initialCmd
 
 # Internal State
 @docs State
@@ -141,6 +142,19 @@ initialState =
         , dialogFocused = False
         , event = ""
         , today = Nothing
+        , titleDate = Nothing
+        }
+
+
+{-| Initial state of the DatePicker with today Date
+-}
+initialStateWithToday : Date.Date -> State
+initialStateWithToday today =
+    State
+        { inputFocused = False
+        , dialogFocused = False
+        , event = ""
+        , today = Just today
         , titleDate = Nothing
         }
 
