@@ -155,7 +155,7 @@ initialStateWithToday today =
         , dialogFocused = False
         , event = ""
         , today = Just today
-        , titleDate = Nothing
+        , titleDate = Just <| Date.Extra.Core.toFirstOfMonth today
         }
 
 
