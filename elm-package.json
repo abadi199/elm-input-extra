@@ -1,5 +1,5 @@
 {
-    "version": "4.2.2",
+    "version": "4.3.0",
     "summary": "Commonly used Html element and date picker with extra functionality",
     "repository": "https://github.com/abadi199/elm-input-extra.git",
     "license": "BSD3",
@@ -12,6 +12,7 @@
         "Dropdown",
         "MultiSelect",
         "MaskedInput.Text",
+        "MaskedInput.Number",
         "DatePicker",
         "DatePicker.Css"
     ],
