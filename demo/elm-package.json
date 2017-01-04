@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Demo for elm-input-extra",
-    "repository": "https://github.com/abadi199/elm-input-extra.git",
+    "repository": "https://github.com/users/elm-input-extra.git",
     "license": "BSD3",
     "source-directories": [
         ".",

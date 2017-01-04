@@ -1,15 +1,17 @@
 # Elm Input Extra
 
 Commonly used Html element with extra functionality.
-This library implements [reusable views](https://guide.elm-lang.org/reuse/more.html) instead of nested component, making it fit nicely in your `view` function, and doesn't complicate your `update` function. 
+This library implements [reusable views](https://guide.elm-lang.org/reuse/more.html) instead of nested component, making it fit nicely in your `view` function, and doesn't complicate your `update` function.
 
 ### [Live Demo](https://abadi199.github.io/elm-input-extra)
 
 See the [source code](https://github.com/abadi199/elm-input-extra/tree/master/demo) of the demo page.
- 
+
 ## Number Input
 
 Html input element that only accept numeric values.
+
+>See: `Input.BigNumber` to work with big number that can't be stored using `Int`
 
 ### Options
  * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
@@ -33,7 +35,7 @@ Input.Number.input
     ...
     ]
     model.currentValue
-``` 
+```
 
 ## Text Input
 
@@ -72,9 +74,9 @@ Html input element with formatting.
 
 ### Example
 ```elm
-type Msg 
-    = InputUpdated String 
-    | StateUpdated MaskedInput.State 
+type Msg
+    = InputUpdated String
+    | StateUpdated MaskedInput.State
     | FocusUpdated Bool
 
 MaskedInput.Text.input
@@ -115,7 +117,7 @@ Html.div []
 
 Html select element with multiple selection
 
-### Options 
+### Options
  * `items` is content of the dropdown.
  * `onChange` is the message for when the selected value in the multi-select is changed.
 
@@ -133,49 +135,4 @@ Html.div []
 
 ## DatePicker
 
-This element requires an additional css that can be downloaded from [here](https://raw.githubusercontent.com/abadi199/elm-input-extra/datepicker/styles.css), or if you use [rtfeldman/elm-css](http://package.elm-lang.org/packages/rtfeldman/elm-css/latest), you can include `DatePicker.Css.css` into your Stylesheets.
-
-In order to set the inital month of the calendar to current month, you will need to run `DatePicker.initialCmd` on your `init` function in your program.
-
-For date formatter, the recommended library is [rluiten/elm-date-extra](http://package.elm-lang.org/packages/rluiten/elm-date-extra/latest)
-
-### Options 
- * `onChange` is the message for when the selected value in the multi-select is changed. (Required)
- * `toMsg` is the Msg for updating internal `State` of the DatePicker element. (Required)
- * `nameOfDays` is the configuration for name of days in a week. (Optional)
- * `firstDayOfWeek` is the first day of the week. Default: Sunday. (Optional)
- * `formatter` is the Date to String formatter for the input value. Default: `"%m/%d/%Y"` (Optional)  
- * `titleFormatter` is the Date to String formatter for the dialog's title. Default: `"%B %Y"` (Optional)
- * `fullDateFormatter` is the Date to String formatter for the dialog's footer. Default:  `"%A, %B %d, %Y"` (Optional)
-### Example
-
-For a complete example, please see [demo/DatePickerDemo.elm](https://github.com/abadi199/elm-input-extra/blob/datepicker/demo/DatePickerDemo.elm).
-
-```elm
-type alias Model = { value : Maybe Date, datePickerState : DatePicker.State }
-
-type Msg 
-    = DatePickerChanged (Maybe Date) 
-    | DatePickerStateChanged DatePicker.State
-
-init = 
-    ( initalModel
-    , DatePicker.initCmd DatePickerStateChanged initialModel.datePickerState
-    )
-
-view model =
-    Html.div []
-        [ DatePicker.datePicker
-            datePickerOptions
-            [ class "my-datepicker" ]
-            model.datePickerState
-            model.value
-        ]
-
-update msg model =
-    case msg of
-        DatePickerChanged newDate -> 
-            { model | value = newDate } ! []
-        DatePickerStateChanged newState ->
-            { model | datePickerState = newState } ! []
-```
+Moved to [abadi199/datetimepicker](http://package.elm-lang.org/packages/abadi199/datetimepicker/latest)
