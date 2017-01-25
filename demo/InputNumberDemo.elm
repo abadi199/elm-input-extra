@@ -17,13 +17,15 @@ main =
 
 type alias Model =
     { value : Maybe Int
+    , valueString : String
     , hasFocus : Bool
+    , hasFocusString : Bool
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { value = Nothing, hasFocus = False }
+    ( { value = Nothing, valueString = "", hasFocus = False, hasFocusString = False }
     , Cmd.none
     )
 
@@ -39,6 +41,20 @@ inputOptions =
             , maxValue = Just 1000
             , minValue = Just 10
             , hasFocus = Just FocusChanged
+        }
+
+
+inputStringOptions : Number.StringOptions Msg
+inputStringOptions =
+    let
+        defaultOptions =
+            Number.defaultStringOptions InputStringChanged
+    in
+        { defaultOptions
+            | maxLength = Just 4
+            , maxValue = Just 1000
+            , minValue = Just 10
+            , hasFocus = Just FocusStringChanged
         }
 
 
@@ -68,13 +84,33 @@ view model =
                 , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
                 ]
             ]
+        , p []
+            [ label []
+                [ text "Number Input: "
+                , Number.inputString
+                    inputStringOptions
+                    [ Html.classList [ ( "focused", model.hasFocusString ) ] ]
+                    model.valueString
+                ]
+            ]
+        , p []
+            [ ul []
+                [ li [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
+                , li [] [ text "Max Value: ", text <| Maybe.withDefault "No Max" <| Maybe.map toString <| inputOptions.maxValue ]
+                , li [] [ text "Min Value: ", text <| Maybe.withDefault "No Min" <| Maybe.map toString <| inputOptions.minValue ]
+                , li [] [ text "Value: ", text <| Maybe.withDefault "NaN" <| Maybe.map toString <| model.value ]
+                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                ]
+            ]
         ]
 
 
 type Msg
     = NoOp
     | InputChanged (Maybe Int)
+    | InputStringChanged String
     | FocusChanged Bool
+    | FocusStringChanged Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -88,3 +124,9 @@ update msg model =
 
         FocusChanged bool ->
             ( { model | hasFocus = bool }, Cmd.none )
+
+        InputStringChanged value ->
+            ( { model | valueString = value }, Cmd.none )
+
+        FocusStringChanged bool ->
+            ( { model | hasFocusString = bool }, Cmd.none )
