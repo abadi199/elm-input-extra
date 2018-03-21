@@ -1,28 +1,22 @@
-module Input.Number exposing (Options, StringOptions, defaultOptions, defaultStringOptions, input, inputString)
+module Input.Number exposing (Options, StringOptions, input, inputString, defaultOptions, defaultStringOptions)
 
 {-| Number input
-
-
 # Options
-
 @docs StringOptions, Options, defaultStringOptions, defaultOptions
 
-
 # View
-
 @docs input, inputString
-
 -}
 
-import Char
 import Html exposing (Attribute, Html)
-import Html.Attributes as Attributes exposing (style, type_, value, max, min)
-import Html.Events exposing (keyCode, onWithOptions)
+import Html.Events exposing (onWithOptions, keyCode)
+import Html.Attributes as Attributes exposing (value, style, type_, min, max)
+import Char
+import String
+import Json.Decode as Json
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
-import Json.Decode as Json
 import Regex
-import String
 
 
 type alias GenericOptions options =
@@ -35,12 +29,11 @@ type alias GenericOptions options =
 
 {-| Options of the input component.
 
-  - `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
-  - `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
-  - `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
-  - `onInput` is the Msg tagger for the onInput event.
-  - `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
-
+ * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
+ * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
 type alias Options msg =
     { maxLength : Maybe Int
@@ -53,12 +46,11 @@ type alias Options msg =
 
 {-| Options of the input component with `String` value.
 
-  - `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
-  - `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
-  - `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
-  - `onInput` is the Msg tagger for the onInput event.
-  - `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
-
+ * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+ * `maxValue` is the maximum number value allowed in this input. Set to `Nothing` for no limit.
+ * `minValue` is the minimum number value allowed in this input. Set to `Nothing` for no limit.
+ * `onInput` is the Msg tagger for the onInput event.
+ * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
 -}
 type alias StringOptions msg =
     { maxLength : Maybe Int
@@ -71,8 +63,7 @@ type alias StringOptions msg =
 
 {-| Default value for `Options`.
 Params:
-
-  - `onInput` (type: `Maybe Int -> msg`) : The onInput Msg tagger
+ * `onInput` (type: `Maybe Int -> msg`) : The onInput Msg tagger
 
 Value:
 
@@ -96,8 +87,7 @@ defaultOptions onInput =
 
 {-| Default options for input with `String` value
 Params:
-
-  - `onInput` (type: `String -> msg`) : The onInput Msg tagger
+ * `onInput` (type: `String -> msg`) : The onInput Msg tagger
 
 Value:
 
@@ -174,23 +164,24 @@ input options attributes currentValue =
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
     in
-    Html.input
-        (List.append attributes
-            [ currentValue
-                |> Maybe.map toString
-                |> Maybe.withDefault ""
-                |> value
-            , onKeyDown options currentValue
-            , Html.Events.onInput (String.toInt >> Result.toMaybe >> options.onInput)
-            , onChange options
-            , type_ "number"
-            ]
-            |> List.append onFocusAttribute
-            |> List.append onBlurAttribute
-            |> List.append maxAttribute
-            |> List.append minAttribute
-        )
-        []
+        Html.input
+            ((List.append attributes
+                [ currentValue
+                    |> Maybe.map toString
+                    |> Maybe.withDefault ""
+                    |> value
+                , onKeyDown options currentValue
+                , Html.Events.onInput (String.toInt >> Result.toMaybe >> options.onInput)
+                , onChange options
+                , type_ "number"
+                ]
+             )
+                |> List.append onFocusAttribute
+                |> List.append onBlurAttribute
+                |> List.append maxAttribute
+                |> List.append minAttribute
+            )
+            []
 
 
 {-| View function for input with `String` value
@@ -248,21 +239,22 @@ inputString options attributes currentValue =
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
     in
-    Html.input
-        (List.append attributes
-            [ currentValue
-                |> value
-            , onKeyDownString options currentValue
-            , Html.Events.onInput options.onInput
-            , onChangeString options
-            , type_ "number"
-            ]
-            |> List.append onFocusAttribute
-            |> List.append onBlurAttribute
-            |> List.append maxAttribute
-            |> List.append minAttribute
-        )
-        []
+        Html.input
+            ((List.append attributes
+                [ currentValue
+                    |> value
+                , onKeyDownString options currentValue
+                , Html.Events.onInput options.onInput
+                , onChangeString options
+                , type_ "number"
+                ]
+             )
+                |> List.append onFocusAttribute
+                |> List.append onBlurAttribute
+                |> List.append maxAttribute
+                |> List.append minAttribute
+            )
+            []
 
 
 filterNonDigit : String -> String
@@ -297,7 +289,7 @@ onKeyDownString options currentValue =
                 <= 57
 
         filterKey =
-            \event ->
+            (\event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
                     Json.fail "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
@@ -309,13 +301,14 @@ onKeyDownString options currentValue =
                     Json.fail "numeric"
                 else
                     Json.succeed event.keyCode
+            )
 
         decoder =
             eventDecoder
                 |> Json.andThen filterKey
                 |> Json.map (\_ -> options.onInput currentValue)
     in
-    onWithOptions "keydown" eventOptions decoder
+        onWithOptions "keydown" eventOptions decoder
 
 
 onKeyDown : Options msg -> Maybe Int -> Attribute msg
@@ -345,7 +338,7 @@ onKeyDown options currentValue =
                 <= 57
 
         filterKey =
-            \event ->
+            (\event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
                     Json.fail "modifier key is pressed"
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
@@ -357,13 +350,14 @@ onKeyDown options currentValue =
                     Json.fail "numeric"
                 else
                     Json.succeed event.keyCode
+            )
 
         decoder =
             eventDecoder
                 |> Json.andThen filterKey
                 |> Json.map (\_ -> options.onInput currentValue)
     in
-    onWithOptions "keydown" eventOptions decoder
+        onWithOptions "keydown" eventOptions decoder
 
 
 isValid : String -> GenericOptions a -> Bool
@@ -374,8 +368,8 @@ isValid newValue options =
                 |> String.toInt
                 |> Result.toMaybe
     in
-    not (exceedMaxLength options.maxLength newValue)
-        && not (exceedMaxValue options.maxValue updatedNumber)
+        not (exceedMaxLength options.maxLength newValue)
+            && not (exceedMaxValue options.maxValue updatedNumber)
 
 
 onChange : Options msg -> Html.Attribute msg
@@ -400,7 +394,7 @@ onChange options =
                 |> checkWithMinValue
                 |> checkWithMaxValue
     in
-    Html.Events.on "change" (Json.map (toInt >> options.onInput) Html.Events.targetValue)
+        Html.Events.on "change" (Json.map (toInt >> options.onInput) Html.Events.targetValue)
 
 
 onChangeString : StringOptions msg -> Html.Attribute msg
@@ -436,7 +430,7 @@ onChangeString options =
                 |> toString
                 |> flip (++) (leadingZero string)
     in
-    Html.Events.on "change" (Json.map options.onInput Html.Events.targetValue)
+        Html.Events.on "change" (Json.map (options.onInput) Html.Events.targetValue)
 
 
 lessThanMinValue : Maybe Int -> Maybe Int -> Bool
@@ -456,6 +450,6 @@ exceedMaxValue maxValue number =
 exceedMaxLength : Maybe Int -> String -> Bool
 exceedMaxLength maxLength value =
     maxLength
-        |> Maybe.map (\maxLength -> maxLength >= String.length value)
+        |> Maybe.map (\maxLength -> maxLength >= (String.length value))
         |> Maybe.map not
         |> Maybe.withDefault False
