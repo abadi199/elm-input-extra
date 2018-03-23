@@ -9,9 +9,8 @@ module Input.Number exposing (Options, StringOptions, input, inputString, defaul
 -}
 
 import Html exposing (Attribute, Html)
-import Html.Attributes exposing (style, type_)
 import Html.Events exposing (onWithOptions, keyCode)
-import Html.Attributes as Attributes exposing (value)
+import Html.Attributes as Attributes exposing (value, style, type_, min, max)
 import Char
 import String
 import Json.Decode as Json
@@ -154,14 +153,14 @@ input options attributes currentValue =
         maxAttribute =
             options.maxValue
                 |> Maybe.map toString
-                |> Maybe.map Html.Attributes.max
+                |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
                 |> Maybe.map toString
-                |> Maybe.map Html.Attributes.min
+                |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
     in
@@ -229,14 +228,14 @@ inputString options attributes currentValue =
         maxAttribute =
             options.maxValue
                 |> Maybe.map toString
-                |> Maybe.map Html.Attributes.max
+                |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
                 |> Maybe.map toString
-                |> Maybe.map Html.Attributes.min
+                |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
     in
