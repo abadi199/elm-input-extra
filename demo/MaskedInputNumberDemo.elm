@@ -38,6 +38,7 @@ inputOptions =
         { defaultOptions
             | pattern = "(###) ###-####"
             , hasFocus = Just FocusChanged
+            , placeholder = "add some placeholder"
         }
 
 

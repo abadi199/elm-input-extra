@@ -18,7 +18,7 @@ module MaskedInput.Text
 
 import Html exposing (Attribute, Html)
 import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
-import Html.Attributes as Attributes exposing (value, id, type_)
+import Html.Attributes as Attributes exposing (id, placeholder, type_, value)
 import Char
 import String
 import Json.Decode as Json
@@ -41,6 +41,7 @@ type alias Options msg =
     , onInput : String -> msg
     , toMsg : State -> msg
     , hasFocus : Maybe (Bool -> msg)
+    , placeholder : String
     }
 
 
@@ -78,6 +79,7 @@ defaultOptions onInput toMsg =
     , onInput = onInput
     , toMsg = toMsg
     , hasFocus = Nothing
+    , placeholder = ""
     }
 
 
@@ -131,6 +133,7 @@ input options attributes state currentValue =
                 , onKeyDown currentFormattedValue tokens options.toMsg
                 , onKeyPress currentFormattedValue tokens options.toMsg
                 , type_ "text"
+                , placeholder options.placeholder
                 ]
              )
                 |> List.append onFocusAttribute
