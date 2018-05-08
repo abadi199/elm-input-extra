@@ -2,6 +2,7 @@ module MaskedInput.Text
     exposing
         ( Options
         , input
+        , telInput
         , defaultOptions
         , State
         , initialState
@@ -13,7 +14,7 @@ module MaskedInput.Text
 @docs State, initialState
 
 # View
-@docs input, Options, defaultOptions
+@docs input, telInput, Options, defaultOptions
 -}
 
 import Html exposing (Attribute, Html)
@@ -102,7 +103,17 @@ Example:
 
 -}
 input : Options msg -> List (Attribute msg) -> State -> String -> Html msg
-input options attributes state currentValue =
+input = genericInput (type_ "text")
+
+{-| Tel input element
+
+Same as Text input element but the element type is "tel"
+-}
+telInput : Options msg -> List (Attribute msg) -> State -> String -> Html msg
+telInput = genericInput (type_ "tel")
+
+genericInput : Attribute msg -> Options msg -> List (Attribute msg) -> State -> String -> Html msg
+genericInput typeAttribute options attributes state currentValue =
     let
         tokens =
             Pattern.parse options.inputCharacter options.pattern
@@ -130,7 +141,7 @@ input options attributes state currentValue =
                 , onInput (processInput options tokens state currentFormattedValue)
                 , onKeyDown currentFormattedValue tokens options.toMsg
                 , onKeyPress currentFormattedValue tokens options.toMsg
-                , type_ "text"
+                , typeAttribute
                 ]
              )
                 |> List.append onFocusAttribute
