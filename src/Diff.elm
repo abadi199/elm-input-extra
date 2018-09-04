@@ -1,21 +1,23 @@
-module Diff
-    exposing
-        ( diffChars
-        , diffLines
-        , Change(..)
-        )
+module Diff exposing
+    ( Change(..)
+    , diffChars, diffLines
+    )
 
-{-| NOTES: This is a copy of https://github.com/avh4/elm-diff/blob/master/src/Diff.elm with an upgrade to Elm 0.18. 
+{-| NOTES: This is a copy of <https://github.com/avh4/elm-diff/blob/master/src/Diff.elm> with an upgrade to Elm 0.18.
 I need to copy it here since it's not upgraded to Elm 0.18 yet.
 Replace this with package dependency once it's upgraded to Elm 0.18.
-Functions to compare strings to produce a list of changes.  This is an
+Functions to compare strings to produce a list of changes. This is an
 implementation of the [Hunt-McIlroy](http://en.wikipedia.org/wiki/Hunt%E2%80%93McIlroy_algorithm)
 diff algorithm.
 
+
 # Types and Constructors
+
 @docs Change
 
+
 # Diffing strings
+
 @docs diffChars, diffLines
 
 -}
@@ -63,7 +65,7 @@ mergeAll next list =
             Changed (a1 ++ b1) (a2 ++ b2) :: rest
 
         _ ->
-            (next :: list)
+            next :: list
 
 
 type alias Cell =
@@ -108,6 +110,7 @@ bestScore ma mb =
         ( Just ( sa, ca ), Just ( sb, cb ) ) ->
             if sb > sa then
                 Just ( sb, cb )
+
             else
                 Just ( sa, ca )
 
@@ -141,6 +144,7 @@ choices a b =
         , ( UseB, 0, Added b )
         , ( UseBoth, 1, NoChange a )
         ]
+
     else
         [ ( UseA, 0, Removed a )
         , ( UseB, 0, Added b )
@@ -161,8 +165,8 @@ calcCell : ( Int, String ) -> ( Int, String ) -> State -> State
 calcCell ( row, a ) ( col, b ) s =
     Dict.insert ( row, col )
         (best (val (row - 1) (col - 1) s)
-            (val (row - 1) (col) s)
-            (val (row) (col - 1) s)
+            (val (row - 1) col s)
+            (val row (col - 1) s)
             a
             b
         )
@@ -172,7 +176,7 @@ calcCell ( row, a ) ( col, b ) s =
 calcRow : List String -> ( Int, String ) -> State -> State
 calcRow bs ( row, a ) d =
     bs
-        |> List.indexedMap (,)
+        |> List.indexedMap (\a b -> ( a, b ))
         |> List.foldl (calcCell ( row, a )) d
 
 
@@ -180,13 +184,13 @@ initialGrid : List String -> List String -> State
 initialGrid az bs =
     Dict.singleton ( -1, -1 ) ( 0, [] )
         |> calcRow bs ( -1, "" )
-        |> (\d -> List.foldl (\a -> calcCell a ( -1, "" )) d (az |> List.indexedMap (,)))
+        |> (\d -> List.foldl (\a -> calcCell a ( -1, "" )) d (az |> List.indexedMap (\a b -> ( a, b ))))
 
 
 calcGrid : List String -> List String -> State
 calcGrid az bs =
     az
-        |> List.indexedMap (,)
+        |> List.indexedMap (\a b -> ( a, b ))
         |> List.foldl (calcRow bs) (initialGrid az bs)
 
 
@@ -199,16 +203,18 @@ diff tokenize a b =
         bs =
             tokenize b
     in
-        if az == [] then
-            List.map Added bs |> List.foldr mergeAll []
-        else if bs == [] then
-            List.map Removed az |> List.foldr mergeAll []
-        else
-            calcGrid az bs
-                |> Dict.get ( -1 + List.length az, -1 + List.length bs )
-                |> Maybe.map (\( score, changes ) -> changes)
-                |> Maybe.withDefault []
-                |> List.foldl mergeAll []
+    if az == [] then
+        List.map Added bs |> List.foldr mergeAll []
+
+    else if bs == [] then
+        List.map Removed az |> List.foldr mergeAll []
+
+    else
+        calcGrid az bs
+            |> Dict.get ( -1 + List.length az, -1 + List.length bs )
+            |> Maybe.map (\( score, changes ) -> changes)
+            |> Maybe.withDefault []
+            |> List.foldl mergeAll []
 
 
 
@@ -224,7 +230,8 @@ diff tokenize a b =
 {-| Diffs two strings, comparing character by charater.
 
     diffChars "abc" "aBcd"
-      == [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
+        == [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
+
 -}
 diffChars : String -> String -> List Change
 diffChars =
@@ -240,17 +247,19 @@ tokenizeLines s =
         n =
             List.length tokens
     in
-        if s == "" then
-            []
-        else
-            tokens
-                |> List.indexedMap
-                    (\i s ->
-                        if i < n - 1 then
-                            s ++ "\n"
-                        else
-                            s
-                    )
+    if s == "" then
+        []
+
+    else
+        tokens
+            |> List.indexedMap
+                (\i s ->
+                    if i < n - 1 then
+                        s ++ "\n"
+
+                    else
+                        s
+                )
 
 
 {-| Diffs two strings, comparing line by line.
@@ -274,6 +283,7 @@ tokenizeLines s =
           , Added "Frosty\n"
           , NoChange "Takis\n"
           ]
+
 -}
 diffLines : String -> String -> List Change
 diffLines =

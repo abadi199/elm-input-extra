@@ -1,7 +1,7 @@
 module InputTextDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import Input.Text as Text
 
 
@@ -34,10 +34,10 @@ inputOptions =
         defaultOptions =
             Text.defaultOptions InputChanged
     in
-        { defaultOptions
-            | maxLength = Just 5
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | maxLength = Just 5
+        , hasFocus = Just FocusChanged
+    }
 
 
 subscriptions : Model -> Sub Msg

@@ -1,12 +1,7 @@
-module Input.Float
-    exposing
-        ( Options
-        , StringOptions
-        , defaultOptions
-        , defaultStringOptions
-        , input
-        , inputString
-        )
+module Input.Float exposing
+    ( StringOptions, Options, defaultStringOptions, defaultOptions
+    , input, inputString
+    )
 
 {-| Number input
 
@@ -144,7 +139,7 @@ input : Options msg -> List (Attribute msg) -> Maybe Float -> Html msg
 input options attributes currentValue =
     let
         toArray =
-            flip (::) []
+            \a -> (::) a []
 
         onFocusAttribute =
             options.hasFocus
@@ -217,7 +212,7 @@ inputString : StringOptions msg -> List (Attribute msg) -> String -> Html msg
 inputString options attributes currentValue =
     let
         toArray =
-            flip (::) []
+            \a -> (::) a []
 
         onFocusAttribute =
             options.hasFocus
@@ -299,13 +294,16 @@ onKeyDownString options currentValue =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
                     Json.fail "modifier key is pressed"
+
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
                     Json.fail "allowedKeys"
+
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
                     Json.fail "numeric"
+
                 else
                     Json.succeed event.keyCode
 
@@ -350,13 +348,16 @@ onKeyDown options currentValue =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
                     Json.fail "modifier key is pressed"
+
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
                     Json.fail "allowedKeys"
+
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
                     Json.fail "numeric"
+
                 else
                     Json.succeed event.keyCode
 
@@ -385,12 +386,14 @@ onChange options =
         checkWithMinValue number =
             if lessThanMinValue options.minValue number then
                 options.minValue
+
             else
                 number
 
         checkWithMaxValue number =
             if exceedMaxValue options.maxValue number then
                 options.maxValue
+
             else
                 number
 
@@ -415,12 +418,14 @@ onChangeString options =
         checkWithMinValue number =
             if lessThanMinValue options.minValue number then
                 options.minValue
+
             else
                 number
 
         checkWithMaxValue number =
             if exceedMaxValue options.maxValue number then
                 options.maxValue
+
             else
                 number
 
@@ -437,7 +442,7 @@ onChangeString options =
                 |> checkWithMinValue
                 |> checkWithMaxValue
                 |> toString
-                |> flip (++) (leadingZero string)
+                |> (\a -> (++) a (leadingZero string))
     in
     Html.Events.on "change" (Json.map options.onInput Html.Events.targetValue)
 

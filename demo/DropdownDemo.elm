@@ -1,17 +1,17 @@
 module DropdownDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes exposing (style, for)
+import Browser
 import Dropdown
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes exposing (for, style)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.sandbox
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -20,12 +20,10 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { selectedValue = Nothing
-      }
-    , Cmd.none
-    )
+    { selectedValue = Nothing
+    }
 
 
 dropdownOptions : Dropdown.Options Msg
@@ -34,13 +32,13 @@ dropdownOptions =
         defaultOptions =
             Dropdown.defaultOptions DropdownChanged
     in
-        { defaultOptions
-            | items =
-                [ { value = "1", text = "One", enabled = True }
-                , { value = "2", text = "Two", enabled = True }
-                ]
-            , emptyItem = Just { value = "0", text = "[Please Select]", enabled = True }
-        }
+    { defaultOptions
+        | items =
+            [ { value = "1", text = "One", enabled = True }
+            , { value = "2", text = "Two", enabled = True }
+            ]
+        , emptyItem = Just { value = "0", text = "[Please Select]", enabled = True }
+    }
 
 
 subscriptions : Model -> Sub Msg
@@ -72,11 +70,11 @@ type Msg
     | DropdownChanged (Maybe String)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         DropdownChanged selectedValue ->
-            ( { model | selectedValue = selectedValue }, Cmd.none )
+            { model | selectedValue = selectedValue }

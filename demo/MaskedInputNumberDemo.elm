@@ -1,7 +1,7 @@
 module MaskedInputNumberDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import MaskedInput.Number as MaskedNumber
 
 
@@ -35,10 +35,10 @@ inputOptions =
         defaultOptions =
             MaskedNumber.defaultOptions InputChanged InputStateChanged
     in
-        { defaultOptions
-            | pattern = "(###) ###-####"
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | pattern = "(###) ###-####"
+        , hasFocus = Just FocusChanged
+    }
 
 
 subscriptions : Model -> Sub Msg

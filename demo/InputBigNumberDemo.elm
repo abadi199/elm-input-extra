@@ -1,7 +1,7 @@
 module InputNumberDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import Input.BigNumber as Number
 
 
@@ -34,10 +34,10 @@ inputOptions =
         defaultOptions =
             Number.defaultOptions InputChanged
     in
-        { defaultOptions
-            | maxLength = Just 20
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | maxLength = Just 20
+        , hasFocus = Just FocusChanged
+    }
 
 
 subscriptions : Model -> Sub Msg

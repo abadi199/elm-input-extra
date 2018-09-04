@@ -1,27 +1,31 @@
-module Input.Text exposing (Options, input, defaultOptions)
+module Input.Text exposing (input, Options, defaultOptions)
 
 {-| Text input
 
+
 # View
+
 @docs input, Options, defaultOptions
+
 -}
 
+import Char exposing (KeyCode, fromCode)
 import Html exposing (Attribute, Html)
-import Html.Events exposing (onWithOptions, keyCode, onInput, onFocus, onBlur)
-import Html.Attributes as Attributes exposing (value, id, type_)
-import Char exposing (fromCode, KeyCode)
-import String
-import Json.Decode as Json
+import Html.Attributes as Attributes exposing (id, type_, value)
+import Html.Events exposing (keyCode, onBlur, onFocus, onInput, onWithOptions)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
+import Json.Decode as Json
+import String
 
 
 {-| Options of the input component.
 
- * `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
- * `onInput` is the Msg tagger for the onInput event.
- * `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
- * `type_` is the type of the HTML input element.
+  - `maxLength` is the maximum number of character allowed in this input. Set to `Nothing` for no limit.
+  - `onInput` is the Msg tagger for the onInput event.
+  - `hasFocus` is an optional Msg tagger for onFocus/onBlur event.
+  - `type_` is the type of the HTML input element.
+
 -}
 type alias Options msg =
     { maxLength : Maybe Int
@@ -32,7 +36,8 @@ type alias Options msg =
 
 
 {-| Default value for `Options`.
- * `onInput` (type: `String -> msg`) : The onInput Msg tagger
+
+  - `onInput` (type: `String -> msg`) : The onInput Msg tagger
 
 Value:
 
@@ -75,29 +80,28 @@ input options attributes currentValue =
         onFocusAttribute =
             options.hasFocus
                 |> Maybe.map (\f -> f True)
-                |> Maybe.map (onFocus)
-                |> Maybe.map (flip (::) [])
+                |> Maybe.map onFocus
+                |> Maybe.map (\a -> (::) a [])
                 |> Maybe.withDefault []
 
         onBlurAttribute =
             options.hasFocus
                 |> Maybe.map (\f -> f False)
                 |> Maybe.map onBlur
-                |> Maybe.map (flip (::) [])
+                |> Maybe.map (\a -> (::) a [])
                 |> Maybe.withDefault []
     in
-        Html.input
-            ((List.append attributes
-                [ value currentValue
-                , onKeyDown options currentValue options.onInput
-                , onInput options.onInput
-                , type_ options.type_
-                ]
-             )
-                |> List.append onFocusAttribute
-                |> List.append onBlurAttribute
-            )
-            []
+    Html.input
+        (List.append attributes
+            [ value currentValue
+            , onKeyDown options currentValue options.onInput
+            , onInput options.onInput
+            , type_ options.type_
+            ]
+            |> List.append onFocusAttribute
+            |> List.append onBlurAttribute
+        )
+        []
 
 
 onKeyDown : Options msg -> String -> (String -> msg) -> Attribute msg
@@ -109,27 +113,29 @@ onKeyDown options currentValue tagger =
             }
 
         filterKey =
-            (\event ->
+            \event ->
                 let
                     newValue =
-                        (currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar))
+                        currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar)
                 in
-                    if event.ctrlKey || event.altKey then
-                        Json.fail "modifier key is pressed"
-                    else if List.any ((==) event.keyCode) allowedKeyCodes then
-                        Json.fail "not arrow"
-                    else if (isValid newValue options) then
-                        Json.fail "valid"
-                    else
-                        Json.succeed event.keyCode
-            )
+                if event.ctrlKey || event.altKey then
+                    Json.fail "modifier key is pressed"
+
+                else if List.any ((==) event.keyCode) allowedKeyCodes then
+                    Json.fail "not arrow"
+
+                else if isValid newValue options then
+                    Json.fail "valid"
+
+                else
+                    Json.succeed event.keyCode
 
         decoder =
             eventDecoder
                 |> Json.andThen filterKey
                 |> Json.map (\_ -> tagger currentValue)
     in
-        onWithOptions "keydown" eventOptions decoder
+    onWithOptions "keydown" eventOptions decoder
 
 
 isValid : String -> Options msg -> Bool
@@ -141,4 +147,4 @@ isValid value options =
                 |> Maybe.map not
                 |> Maybe.withDefault False
     in
-        not exceedMaxLength
+    not exceedMaxLength

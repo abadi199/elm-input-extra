@@ -1,7 +1,7 @@
 module InputNumberDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import Input.Number as Number
 
 
@@ -36,12 +36,12 @@ inputOptions =
         defaultOptions =
             Number.defaultOptions InputChanged
     in
-        { defaultOptions
-            | maxLength = Nothing
-            , maxValue = Just 1000
-            , minValue = Just 10
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | maxLength = Nothing
+        , maxValue = Just 1000
+        , minValue = Just 10
+        , hasFocus = Just FocusChanged
+    }
 
 
 inputStringOptions : Number.StringOptions Msg
@@ -50,12 +50,12 @@ inputStringOptions =
         defaultOptions =
             Number.defaultStringOptions InputStringChanged
     in
-        { defaultOptions
-            | maxLength = Just 4
-            , maxValue = Just 1000
-            , minValue = Just 10
-            , hasFocus = Just FocusStringChanged
-        }
+    { defaultOptions
+        | maxLength = Just 4
+        , maxValue = Just 1000
+        , minValue = Just 10
+        , hasFocus = Just FocusStringChanged
+    }
 
 
 subscriptions : Model -> Sub Msg
