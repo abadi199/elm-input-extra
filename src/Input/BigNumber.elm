@@ -13,7 +13,7 @@ This is a number input for big number values that can't be stored using `Int` an
 import Char
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes exposing (style, type_, value)
-import Html.Events exposing (keyCode, onWithOptions)
+import Html.Events exposing (keyCode, preventDefaultOn)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -116,11 +116,6 @@ filterNonDigit value =
 onKeyDown : Options msg -> String -> Attribute msg
 onKeyDown options currentValue =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         newValue keyCode =
             keyCode
                 |> Char.fromCode
@@ -142,26 +137,28 @@ onKeyDown options currentValue =
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
-                    Json.fail "modifier key is pressed"
+                    ( options.onInput currentValue, False )
+
+                else if event.shiftKey then
+                    ( options.onInput currentValue, True )
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "allowedKeys"
+                    ( options.onInput currentValue, False )
 
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    Json.fail "numeric"
+                    ( options.onInput (newValue event.keyCode), False )
 
                 else
-                    Json.succeed event.keyCode
+                    ( options.onInput currentValue, True )
 
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> options.onInput currentValue)
+                |> Json.map filterKey
     in
-    onWithOptions "keydown" eventOptions decoder
+    preventDefaultOn "keydown" decoder
 
 
 isValid : String -> Options msg -> Bool
@@ -170,7 +167,6 @@ isValid newValue options =
         updatedNumber =
             newValue
                 |> String.toInt
-                |> Result.toMaybe
     in
     not (exceedMaxLength options newValue)
 
