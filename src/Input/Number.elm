@@ -20,7 +20,7 @@ module Input.Number exposing
 import Char
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes exposing (max, min, style, type_, value)
-import Html.Events exposing (keyCode, onWithOptions)
+import Html.Events exposing (keyCode, preventDefaultOn)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -165,14 +165,14 @@ input options attributes currentValue =
 
         maxAttribute =
             options.maxValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
@@ -180,11 +180,11 @@ input options attributes currentValue =
     Html.input
         (List.append attributes
             [ currentValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.withDefault ""
                 |> value
             , onKeyDown options currentValue
-            , Html.Events.onInput (String.toInt >> Result.toMaybe >> options.onInput)
+            , Html.Events.onInput (String.toInt >> options.onInput)
             , onChange options
             , type_ "number"
             ]
@@ -239,14 +239,14 @@ inputString options attributes currentValue =
 
         maxAttribute =
             options.maxValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
@@ -276,11 +276,6 @@ filterNonDigit value =
 onKeyDownString : StringOptions msg -> String -> Attribute msg
 onKeyDownString options currentValue =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         newValue keyCode =
             keyCode
                 |> Char.fromCode
@@ -302,41 +297,38 @@ onKeyDownString options currentValue =
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
-                    Json.fail "modifier key is pressed"
+                    ( options.onInput currentValue, False )
+
+                else if event.shiftKey then
+                    ( options.onInput currentValue, True )
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "allowedKeys"
+                    ( options.onInput currentValue, False )
 
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    Json.fail "numeric"
+                    ( options.onInput (newValue event.keyCode), False )
 
                 else
-                    Json.succeed event.keyCode
+                    ( options.onInput currentValue, True )
 
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> options.onInput currentValue)
+                |> Json.map filterKey
     in
-    onWithOptions "keydown" eventOptions decoder
+    preventDefaultOn "keydown" decoder
 
 
 onKeyDown : Options msg -> Maybe Int -> Attribute msg
 onKeyDown options currentValue =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         newValue keyCode =
             keyCode
                 |> Char.fromCode
                 |> String.fromChar
-                |> (++) (Maybe.withDefault "" <| Maybe.map toString <| currentValue)
+                |> (++) (Maybe.withDefault "" <| Maybe.map String.fromInt <| currentValue)
 
         isNumPad keyCode =
             keyCode
@@ -353,26 +345,28 @@ onKeyDown options currentValue =
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
-                    Json.fail "modifier key is pressed"
+                    ( options.onInput currentValue, False )
+
+                else if event.shiftKey then
+                    ( options.onInput currentValue, True )
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "allowedKeys"
+                    ( options.onInput currentValue, False )
 
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    Json.fail "numeric"
+                    ( options.onInput (String.toInt <| newValue event.keyCode), False )
 
                 else
-                    Json.succeed event.keyCode
+                    ( options.onInput currentValue, True )
 
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> options.onInput currentValue)
+                |> Json.map filterKey
     in
-    onWithOptions "keydown" eventOptions decoder
+    preventDefaultOn "keydown" decoder
 
 
 isValid : String -> GenericOptions a -> Bool
@@ -381,7 +375,6 @@ isValid newValue options =
         updatedNumber =
             newValue
                 |> String.toInt
-                |> Result.toMaybe
     in
     not (exceedMaxLength options.maxLength newValue)
         && not (exceedMaxValue options.maxValue updatedNumber)
@@ -407,19 +400,21 @@ onChange options =
         toInt string =
             string
                 |> String.toInt
-                |> Result.toMaybe
                 |> checkWithMinValue
                 |> checkWithMaxValue
     in
     Html.Events.on "change" (Json.map (toInt >> options.onInput) Html.Events.targetValue)
 
 
+leadingZeroRegex : Regex.Regex
+leadingZeroRegex =
+    Regex.fromString "0*"
+        |> Maybe.withDefault Regex.never
+
+
 onChangeString : StringOptions msg -> Html.Attribute msg
 onChangeString options =
     let
-        leadingZeroRegex =
-            Regex.regex "0*"
-
         checkWithMinValue number =
             if lessThanMinValue options.minValue number then
                 options.minValue
@@ -435,7 +430,7 @@ onChangeString options =
                 number
 
         leadingZero string =
-            Regex.find (Regex.AtMost 1) leadingZeroRegex string
+            Regex.findAtMost 1 leadingZeroRegex string
                 |> List.head
                 |> Maybe.map .match
                 |> Maybe.withDefault ""
@@ -443,32 +438,31 @@ onChangeString options =
         toInt string =
             string
                 |> String.toInt
-                |> Result.toMaybe
                 |> checkWithMinValue
                 |> checkWithMaxValue
-                |> toString
-                |> (\a -> (++) a (leadingZero string))
+                |> Maybe.map String.fromInt
+                |> Maybe.map (\a -> (++) a (leadingZero string))
     in
     Html.Events.on "change" (Json.map options.onInput Html.Events.targetValue)
 
 
 lessThanMinValue : Maybe Int -> Maybe Int -> Bool
-lessThanMinValue minValue number =
-    number
+lessThanMinValue minValue maybeNumber =
+    maybeNumber
         |> Maybe.map2 (\min number -> number < min) minValue
         |> Maybe.withDefault False
 
 
 exceedMaxValue : Maybe Int -> Maybe Int -> Bool
-exceedMaxValue maxValue number =
-    number
+exceedMaxValue maxValue maybeNumber =
+    maybeNumber
         |> Maybe.map2 (\max number -> number > max) maxValue
         |> Maybe.withDefault False
 
 
 exceedMaxLength : Maybe Int -> String -> Bool
-exceedMaxLength maxLength value =
-    maxLength
+exceedMaxLength maybeMaxLength value =
+    maybeMaxLength
         |> Maybe.map (\maxLength -> maxLength >= String.length value)
         |> Maybe.map not
         |> Maybe.withDefault False
