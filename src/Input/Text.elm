@@ -9,10 +9,10 @@ module Input.Text exposing (input, Options, defaultOptions)
 
 -}
 
-import Char exposing (KeyCode, fromCode)
+import Char exposing (fromCode)
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes exposing (id, type_, value)
-import Html.Events exposing (keyCode, onBlur, onFocus, onInput, onWithOptions)
+import Html.Events exposing (keyCode, onBlur, onFocus, onInput, preventDefaultOn)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -107,11 +107,6 @@ input options attributes currentValue =
 onKeyDown : Options msg -> String -> (String -> msg) -> Attribute msg
 onKeyDown options currentValue tagger =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         filterKey =
             \event ->
                 let
@@ -119,23 +114,22 @@ onKeyDown options currentValue tagger =
                         currentValue ++ (event.keyCode |> Char.fromCode |> String.fromChar)
                 in
                 if event.ctrlKey || event.altKey then
-                    Json.fail "modifier key is pressed"
+                    ( options.onInput currentValue, False )
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "not arrow"
+                    ( options.onInput currentValue, False )
 
                 else if isValid newValue options then
-                    Json.fail "valid"
+                    ( options.onInput newValue, False )
 
                 else
-                    Json.succeed event.keyCode
+                    ( options.onInput currentValue, True )
 
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> tagger currentValue)
+                |> Json.map filterKey
     in
-    onWithOptions "keydown" eventOptions decoder
+    preventDefaultOn "keydown" decoder
 
 
 isValid : String -> Options msg -> Bool
