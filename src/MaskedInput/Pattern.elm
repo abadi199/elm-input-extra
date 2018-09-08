@@ -190,7 +190,7 @@ adjust tokens adjustment previous current =
         |> foldPairs adjustment
 
 
-splitChanges : List Diff.Change -> List Diff.Change
+splitChanges : List (Diff.Change String) -> List (Diff.Change String)
 splitChanges changes =
     let
         splitString change str =
@@ -208,16 +208,13 @@ splitChanges changes =
 
                 Diff.Removed str ->
                     splitString Diff.Removed str
-
-                Diff.Changed _ str ->
-                    splitString (Diff.Changed "") str
     in
     changes
         |> List.map split
         |> List.concat
 
 
-isAdd : Diff.Change -> Bool
+isAdd : Diff.Change String -> Bool
 isAdd change =
     case change of
         Diff.Added _ ->
@@ -227,7 +224,7 @@ isAdd change =
             False
 
 
-changesPairWithToken : List Token -> String -> String -> List ( Maybe Token, Diff.Change )
+changesPairWithToken : List Token -> String -> String -> List ( Maybe Token, Diff.Change String )
 changesPairWithToken tokens previous current =
     let
         getToken index change =
@@ -247,7 +244,7 @@ changesPairWithToken tokens previous current =
                     List.Extra.getAt tokenIndex tokens
 
         splittedChanges =
-            Diff.diffChars previous current
+            Diff.diffLines previous current
                 |> splitChanges
 
         totalChanges =
@@ -257,7 +254,7 @@ changesPairWithToken tokens previous current =
             let
                 index =
                     results
-                        |> List.filter (\( _, change ) -> not (isAdd change))
+                        |> List.filter (\( _, newChange ) -> not (isAdd newChange))
                         |> List.length
                         |> (\length -> length)
             in
@@ -266,7 +263,7 @@ changesPairWithToken tokens previous current =
     splittedChanges |> List.foldr toPair []
 
 
-foldPairs : Adjustment -> List ( Maybe Token, Diff.Change ) -> String
+foldPairs : Adjustment -> List ( Maybe Token, Diff.Change String ) -> String
 foldPairs adjustment pairs =
     let
         left =
@@ -294,9 +291,6 @@ foldPairs adjustment pairs =
                 ( Just (Other _), Diff.Added _ ) ->
                     str
 
-                ( Just (Other _), Diff.Changed _ _ ) ->
-                    str
-
                 ( Just (Other _), Diff.NoChange _ ) ->
                     str
 
@@ -306,9 +300,6 @@ foldPairs adjustment pairs =
                 ( Just Input, Diff.Added s ) ->
                     concat isLeft s str
 
-                ( Just Input, Diff.Changed _ s ) ->
-                    concat isLeft s str
-
                 ( Just Input, Diff.NoChange s ) ->
                     concat isLeft s str
 
@@ -316,9 +307,6 @@ foldPairs adjustment pairs =
                     str
 
                 ( Nothing, Diff.Added s ) ->
-                    concat isLeft s str
-
-                ( Nothing, Diff.Changed _ s ) ->
                     concat isLeft s str
 
                 ( Nothing, Diff.NoChange s ) ->
@@ -332,7 +320,7 @@ foldPairs adjustment pairs =
             right
 
 
-changedString : Diff.Change -> String
+changedString : Diff.Change String -> String
 changedString change =
     case change of
         Diff.NoChange str ->
@@ -342,7 +330,4 @@ changedString change =
             str
 
         Diff.Removed str ->
-            str
-
-        Diff.Changed _ str ->
             str

@@ -20,7 +20,7 @@ module MaskedInput.Number exposing
 import Char
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes exposing (id, type_, value)
-import Html.Events exposing (keyCode, onBlur, onFocus, onInput, onWithOptions)
+import Html.Events exposing (keyCode, on, onBlur, onFocus, onInput, preventDefaultOn)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -49,7 +49,7 @@ type alias Options msg =
 {-| Opaque type for storing local State
 -}
 type State
-    = State (Maybe Char.KeyCode)
+    = State (Maybe Int)
 
 
 {-| Initial state
@@ -126,7 +126,7 @@ input options attributes state currentValue =
 
         currentFormattedValue =
             currentValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromInt
                 |> Maybe.withDefault ""
                 |> Pattern.format tokens
 
@@ -164,7 +164,6 @@ processInput options tokens state oldValue value =
             oldValue
                 |> Pattern.extract tokens
                 |> String.toInt
-                |> Result.toMaybe
 
         newValue =
             Pattern.adjust tokens adjustment oldValue value
@@ -174,7 +173,6 @@ processInput options tokens state oldValue value =
         newNumber =
             newValue
                 |> String.toInt
-                |> Result.toMaybe
     in
     case ( newValue, newNumber ) of
         ( "", _ ) ->
@@ -190,11 +188,6 @@ processInput options tokens state oldValue value =
 onKeyDown : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
 onKeyDown currentFormattedValue tokens toMsg =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = False
-            }
-
         filterKey =
             \event ->
                 Json.succeed event.keyCode
@@ -204,17 +197,12 @@ onKeyDown currentFormattedValue tokens toMsg =
                 |> Json.andThen filterKey
                 |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
     in
-    onWithOptions "keydown" eventOptions decoder
+    on "keydown" decoder
 
 
 onKeyPress : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
 onKeyPress currentFormattedValue tokens toMsg =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         isNumPad keyCode =
             keyCode
                 >= 96
@@ -230,23 +218,28 @@ onKeyPress currentFormattedValue tokens toMsg =
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey then
-                    Json.fail "modifier key is pressed"
+                    ( event.keyCode, False )
+                    -- Json.fail "modifier key is pressed"
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "not arrow"
+                    ( event.keyCode, False )
+                    -- Json.fail "not arrow"
 
                 else if isNumber event.keyCode || isNumPad event.keyCode then
-                    Json.fail "numeric"
+                    ( event.keyCode, False )
+                    -- Json.fail "numeric"
 
                 else if String.length currentFormattedValue < List.length tokens then
-                    Json.fail "accepting more input"
+                    ( event.keyCode, False )
+                    -- Json.fail "accepting more input"
 
                 else
-                    Json.succeed event.keyCode
+                    ( event.keyCode, True )
 
+        -- Json.succeed event.keyCode
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
+                |> Json.map filterKey
+                |> Json.map (\( keyCode, preventDefault ) -> ( toMsg <| State <| Just keyCode, preventDefault ))
     in
-    onWithOptions "keypress" eventOptions decoder
+    preventDefaultOn "keypress" decoder
