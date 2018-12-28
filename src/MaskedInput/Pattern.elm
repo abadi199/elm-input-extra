@@ -13,8 +13,6 @@ module MaskedInput.Pattern exposing
 -}
 
 import Diff
-import List.Extra
-import String
 
 
 type Token
@@ -241,7 +239,7 @@ changesPairWithToken tokens previous current =
                             else
                                 (String.length previous - 1) - index
                     in
-                    List.Extra.getAt tokenIndex tokens
+                    getAt tokenIndex tokens
 
         splittedChanges =
             Diff.diffLines previous current
@@ -331,3 +329,18 @@ changedString change =
 
         Diff.Removed str ->
             str
+
+
+
+-- Helpers
+
+
+{-| Copied in from List.Extra to avoid the dependency
+-}
+getAt : Int -> List a -> Maybe a
+getAt idx xs =
+    if idx < 0 then
+        Nothing
+
+    else
+        List.head <| List.drop idx xs
