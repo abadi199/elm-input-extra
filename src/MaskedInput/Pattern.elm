@@ -21,7 +21,6 @@ module MaskedInput.Pattern
 
 import String
 import Diff
-import List.Extra
 
 
 type Token
@@ -242,7 +241,7 @@ changesPairWithToken tokens previous current =
                             else
                                 ((String.length previous) - 1) - index
                     in
-                        List.Extra.getAt tokenIndex tokens
+                        getAt tokenIndex tokens
 
         splittedChanges =
             Diff.diffChars previous current
@@ -342,3 +341,17 @@ changedString change =
 
         Diff.Changed _ str ->
             str
+
+
+
+-- Helpers
+
+
+{-| Copied in from List.Extra to avoid the dependency
+-}
+getAt : Int -> List a -> Maybe a
+getAt idx xs =
+    if idx < 0 then
+        Nothing
+    else
+        List.head <| List.drop idx xs
