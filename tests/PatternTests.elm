@@ -1,10 +1,23 @@
-module PatternTests exposing (..)
+module PatternTests exposing
+    ( adjustTests
+    , changesPairWithTokenTests
+    , datePattern
+    , extractTests
+    , foldPairsTest
+    , formatTests
+    , isValidTests
+    , parensPattern
+    , parseTests
+    , phonePattern
+    , splitChangesTest
+    )
 
-import Test exposing (..)
+import Diff
 import Expect
 import MaskedInput.Pattern as Pattern exposing (Token(..))
 import String
-import Diff
+import Test exposing (..)
+
 
 
 -- CONSTANTS
@@ -23,20 +36,6 @@ phonePattern =
 datePattern : List Token
 datePattern =
     [ Input, Input, Other '/', Input, Input, Other '/', Input, Input, Input, Input ]
-
-
-all : Test
-all =
-    describe "Pattern Test Suite"
-        [ parseTests
-        , formatTests
-        , extractTests
-        , isValidTests
-        , adjustTests
-        , splitChangesTest
-        , changesPairWithTokenTests
-        , foldPairsTest
-        ]
 
 
 
@@ -95,7 +94,7 @@ extractTests =
             \() ->
                 Pattern.extract parensPattern "(123)"
                     |> Expect.equal "123"
-        , test "for parens pattern will extract the right value" <|
+        , test "for parens without closing parens pattern will extract the right value" <|
             \() ->
                 Pattern.extract parensPattern "(123"
                     |> Expect.equal "123"
@@ -103,10 +102,6 @@ extractTests =
             \() ->
                 Pattern.extract phonePattern "(314) 555-1234"
                     |> Expect.equal "3145551234"
-        , test "for phone pattern will extract the right value" <|
-            \() ->
-                Pattern.extract phonePattern "(314"
-                    |> Expect.equal "314"
         , test "for incomplete phone pattern will extract the right value" <|
             \() ->
                 Pattern.extract phonePattern "(314) 555"
@@ -145,6 +140,10 @@ isValidTests =
             \() ->
                 Pattern.isValid "(314)111122" phonePattern
                     |> Expect.false "formatted value is invalid"
+        , test "for phone pattern with 1 character too long should be invalid" <|
+            \() ->
+                Pattern.isValid "(314) 555-12345" phonePattern
+                    |> Expect.false "formatted value is invalid"
         ]
 
 
@@ -173,8 +172,12 @@ adjustTests =
                     |> Expect.equal "123"
         , test "for parens pattern, from (123) to (123)5" <|
             \() ->
-                Pattern.adjust parensPattern Pattern.Backspace "(123)" "(123)5"
+                Pattern.adjust phonePattern Pattern.Backspace "(123)" "(123)5"
                     |> Expect.equal "1235"
+        , test "for phone pattern, from (314) 555-1234 to (314) 555-12345" <|
+            \() ->
+                Pattern.adjust phonePattern Pattern.OtherUpdate "(314) 555-1234" "(314) 555-12345"
+                    |> Expect.equal "3145551234"
         ]
 
 
@@ -216,7 +219,6 @@ changesPairWithTokenTests =
                         , ( Just <| Input, Diff.NoChange "1" )
                         , ( Just <| Input, Diff.NoChange "2" )
                         , ( Just <| Input, Diff.NoChange "3" )
-                        , ( Nothing, Diff.Added "A" )
                         , ( Just <| Other ')', Diff.NoChange ")" )
                         ]
         , test "Changes from (123) to (13) with parensPattern" <|
@@ -238,16 +240,6 @@ changesPairWithTokenTests =
                         , ( Just <| Input, Diff.NoChange "2" )
                         , ( Just <| Input, Diff.NoChange "3" )
                         , ( Just <| Other ')', Diff.Removed ")" )
-                        ]
-        , test "Changes from (123) to 123) with parensPattern" <|
-            \() ->
-                Pattern.changesPairWithToken parensPattern "(123)" "123)"
-                    |> Expect.equal
-                        [ ( Just <| Other '(', Diff.Removed "(" )
-                        , ( Just Input, Diff.NoChange "1" )
-                        , ( Just Input, Diff.NoChange "2" )
-                        , ( Just Input, Diff.NoChange "3" )
-                        , ( Just <| Other ')', Diff.NoChange ")" )
                         ]
         , test "Changes from (123) to 123) with parensPattern" <|
             \() ->

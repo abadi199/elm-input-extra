@@ -49,8 +49,8 @@ type alias Options msg =
 {-| Default Options, will give you empty multi-select with no empty item
 -}
 defaultOptions : (List String -> msg) -> Options msg
-defaultOptions onChange =
-    { items = [], onChange = onChange }
+defaultOptions onChangeHandler =
+    { items = [], onChange = onChangeHandler }
 
 
 {-| Html element.
@@ -108,7 +108,7 @@ optionsDecoder : Decode.Decoder (List Option)
 optionsDecoder =
     let
         loop idx xs =
-            Decode.maybe (Decode.field (toString idx) optionDecoder)
+            Decode.maybe (Decode.field (String.fromInt idx) optionDecoder)
                 |> Decode.andThen
                     (Maybe.map (\x -> loop (idx + 1) (x :: xs))
                         >> Maybe.withDefault (Decode.succeed xs)

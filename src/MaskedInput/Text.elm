@@ -20,7 +20,7 @@ module MaskedInput.Text exposing
 import Char
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes exposing (id, type_, value)
-import Html.Events exposing (keyCode, onBlur, onFocus, onInput, onWithOptions)
+import Html.Events exposing (custom, keyCode, onBlur, onFocus, onInput)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -49,7 +49,7 @@ type alias Options msg =
 {-| Opaque type for storing local State
 -}
 type State
-    = State (Maybe Char.KeyCode)
+    = State (Maybe Int)
 
 
 {-| Initial state
@@ -161,11 +161,6 @@ processInput options tokens state oldValue value =
 onKeyDown : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
 onKeyDown currentFormattedValue tokens toMsg =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = False
-            }
-
         filterKey =
             \event ->
                 Json.succeed event.keyCode
@@ -173,19 +168,14 @@ onKeyDown currentFormattedValue tokens toMsg =
         decoder =
             eventDecoder
                 |> Json.andThen filterKey
-                |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
+                |> Json.map (\keyCode -> { stopPropagation = False, preventDefault = False, message = toMsg <| State <| Just keyCode })
     in
-    onWithOptions "keydown" eventOptions decoder
+    custom "keydown" decoder
 
 
 onKeyPress : String -> List Pattern.Token -> (State -> msg) -> Attribute msg
 onKeyPress currentFormattedValue tokens toMsg =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey then
@@ -203,6 +193,6 @@ onKeyPress currentFormattedValue tokens toMsg =
         decoder =
             eventDecoder
                 |> Json.andThen filterKey
-                |> Json.map (\keyCode -> toMsg <| State <| Just keyCode)
+                |> Json.map (\keyCode -> { stopPropagation = False, preventDefault = False, message = toMsg <| State <| Just keyCode })
     in
-    onWithOptions "keypress" eventOptions decoder
+    custom "keypress" decoder

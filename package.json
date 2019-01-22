@@ -1,0 +1,27 @@
+{
+  "name": "elm-input-extra",
+  "version": "1.0.0",
+  "description": "Commonly used Html element with extra functionality. This library implements [reusable views](https://guide.elm-lang.org/reuse/more.html) instead of nested component, making it fit nicely in your `view` function, and doesn't complicate your `update` function.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "elm": "^0.19.0-bugfix6",
+    "elm-test": "^0.19.0-rev4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abadi199/elm-input-extra.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abadi199/elm-input-extra/issues"
+  },
+  "homepage": "https://github.com/abadi199/elm-input-extra#readme"
+}

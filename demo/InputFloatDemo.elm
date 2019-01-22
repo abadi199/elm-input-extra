@@ -99,7 +99,7 @@ view model =
                 , li []
                     [ text "Has Focus: "
                     , text <|
-                        if model.hasFocus then
+                        if model.hasFocusString then
                             "True"
 
                         else

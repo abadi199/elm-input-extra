@@ -1,17 +1,17 @@
 module MaskedInputTextDemo exposing (main)
 
+import Browser
 import Html exposing (Html, form, label, li, p, text, ul)
 import Html.Attributes as Html exposing (for, style)
 import MaskedInput.Text as MaskedText
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.sandbox
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -22,11 +22,9 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { value = "", hasFocus = False, state = MaskedText.initialState }
-    , Cmd.none
-    )
+    { value = "", hasFocus = False, state = MaskedText.initialState }
 
 
 inputOptions : MaskedText.Options Msg
@@ -63,7 +61,15 @@ view model =
             [ ul []
                 [ li [] [ text "Pattern: ", text inputOptions.pattern ]
                 , li [] [ text "Value: ", text model.value ]
-                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                , li []
+                    [ text "Has Focus: "
+                    , text <|
+                        if model.hasFocus then
+                            "True"
+
+                        else
+                            "False"
+                    ]
                 ]
             ]
         ]
@@ -76,17 +82,17 @@ type Msg
     | InputStateChanged MaskedText.State
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         InputChanged value ->
-            ( { model | value = value }, Cmd.none )
+            { model | value = value }
 
         FocusChanged bool ->
-            ( { model | hasFocus = bool }, Cmd.none )
+            { model | hasFocus = bool }
 
         InputStateChanged state ->
-            ( { model | state = state }, Cmd.none )
+            { model | state = state }

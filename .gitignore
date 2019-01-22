@@ -2,3 +2,4 @@ elm-stuff/
 repl-temp-*
 npm-debug.log
 demo/demo.js
+node_modules/

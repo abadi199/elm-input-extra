@@ -1,17 +1,17 @@
 module MultiSelectDemo exposing (main)
 
+import Browser
 import Html exposing (Html, form, label, li, p, text, ul)
 import Html.Attributes exposing (for, style)
 import MultiSelect
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.sandbox
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -20,12 +20,9 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { selectedValue = []
-      }
-    , Cmd.none
-    )
+    { selectedValue = [] }
 
 
 multiSelectOptions : MultiSelect.Options Msg
@@ -44,11 +41,6 @@ multiSelectOptions =
     }
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
 view : Model -> Html Msg
 view model =
     form []
@@ -63,7 +55,7 @@ view model =
             ]
         , p []
             [ ul []
-                [ li [] [ text "Selected Values: ", text <| toString model.selectedValue ] ]
+                [ li [] [ text "Selected Values: ", text <| Debug.toString model.selectedValue ] ]
             ]
         ]
 
@@ -73,11 +65,11 @@ type Msg
     | MultiSelectChanged (List String)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         MultiSelectChanged selectedValue ->
-            ( { model | selectedValue = selectedValue }, Cmd.none )
+            { model | selectedValue = selectedValue }
