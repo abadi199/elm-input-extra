@@ -8,13 +8,15 @@ type alias Event =
     , ctrlKey : Bool
     , altKey : Bool
     , metaKey : Bool
+    , shiftKey : Bool
     }
 
 
 eventDecoder : Json.Decoder Event
 eventDecoder =
-    Json.map4 Event
+    Json.map5 Event
         (Json.field "keyCode" Json.int)
         (Json.field "ctrlKey" Json.bool)
         (Json.field "altKey" Json.bool)
         (Json.field "metaKey" Json.bool)
+        (Json.field "shiftKey" Json.bool)

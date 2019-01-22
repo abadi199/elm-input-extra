@@ -1,17 +1,17 @@
 module MaskedInputNumberDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Browser
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import MaskedInput.Number as MaskedNumber
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.sandbox
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -22,11 +22,9 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { value = Nothing, hasFocus = False, state = MaskedNumber.initialState }
-    , Cmd.none
-    )
+    { value = Nothing, hasFocus = False, state = MaskedNumber.initialState }
 
 
 inputOptions : MaskedNumber.Options Msg
@@ -35,10 +33,10 @@ inputOptions =
         defaultOptions =
             MaskedNumber.defaultOptions InputChanged InputStateChanged
     in
-        { defaultOptions
-            | pattern = "(###) ###-####"
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | pattern = "(###) ###-####"
+        , hasFocus = Just FocusChanged
+    }
 
 
 subscriptions : Model -> Sub Msg
@@ -62,8 +60,16 @@ view model =
         , p []
             [ ul []
                 [ li [] [ text "Pattern: ", text inputOptions.pattern ]
-                , li [] [ text "Value: ", text <| toString model.value ]
-                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                , li [] [ text "Value: ", text <| Maybe.withDefault "" <| Maybe.map String.fromInt <| model.value ]
+                , li []
+                    [ text "Has Focus: "
+                    , text <|
+                        if model.hasFocus then
+                            "True"
+
+                        else
+                            "False"
+                    ]
                 ]
             ]
         ]
@@ -76,17 +82,17 @@ type Msg
     | InputStateChanged MaskedNumber.State
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         InputChanged value ->
-            ( { model | value = value }, Cmd.none )
+            { model | value = value }
 
         FocusChanged bool ->
-            ( { model | hasFocus = bool }, Cmd.none )
+            { model | hasFocus = bool }
 
         InputStateChanged state ->
-            ( { model | state = state }, Cmd.none )
+            { model | state = state }

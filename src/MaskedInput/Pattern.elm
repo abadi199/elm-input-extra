@@ -1,26 +1,19 @@
-module MaskedInput.Pattern
-    exposing
-        ( parse
-        , tokenize
-        , Token(..)
-        , format
-        , extract
-        , isValid
-        , adjust
-        , Adjustment(..)
-        , splitChanges
-        , changesPairWithToken
-        , foldPairs
-        )
+module MaskedInput.Pattern exposing
+    ( parse, format
+    , Adjustment(..), Token(..), adjust, changesPairWithToken, extract, foldPairs, isValid, splitChanges, tokenize
+    )
 
 {-| Pattern
 
+
 # Functions
+
 @docs parse, format, value
+
 -}
 
-import String
 import Diff
+import String
 
 
 type Token
@@ -31,6 +24,7 @@ type Token
 {-| Parse a String and return a pattern.
 
 e.g.: parse "(###)" will return [ Other '(', Input, Input, Input, Other ')' ]
+
 -}
 parse : Char -> String -> List Token
 parse inputChar pattern =
@@ -42,6 +36,7 @@ tokenize : Char -> Char -> Token
 tokenize inputChar pattern =
     if pattern == inputChar then
         Input
+
     else
         Other pattern
 
@@ -52,6 +47,7 @@ format : List Token -> String -> String
 format tokens input =
     if String.isEmpty input then
         input
+
     else
         append tokens (String.toList input) ""
 
@@ -68,17 +64,17 @@ append tokens input formatted =
         maybeToken =
             List.head tokens
     in
-        case maybeToken of
-            Nothing ->
-                formatted
+    case maybeToken of
+        Nothing ->
+            formatted
 
-            Just token ->
-                case token of
-                    Input ->
-                        appendInput
+        Just token ->
+            case token of
+                Input ->
+                    appendInput
 
-                    Other char ->
-                        append (Maybe.withDefault [] <| List.tail tokens) input (formatted ++ String.fromChar char)
+                Other char ->
+                    append (Maybe.withDefault [] <| List.tail tokens) input (formatted ++ String.fromChar char)
 
 
 {-| Extract original value out of formatted string
@@ -110,18 +106,19 @@ scan tokens input value =
                         scan
                             (Maybe.withDefault [] (List.tail tokens))
                             (Maybe.withDefault [] (List.tail input))
-                            (value)
+                            value
+
                     else
                         String.fromList input
     in
-        case maybeToken of
-            Nothing ->
-                value
+    case maybeToken of
+        Nothing ->
+            value
 
-            Just token ->
-                maybeInputChar
-                    |> Maybe.map (parseToken token)
-                    |> Maybe.withDefault value
+        Just token ->
+            maybeInputChar
+                |> Maybe.map (parseToken token)
+                |> Maybe.withDefault value
 
 
 isValid : String -> List Token -> Bool
@@ -147,33 +144,37 @@ isValid value tokens =
                 isCharacterEmpty =
                     List.isEmpty unscannedCharacters
             in
-                if isCharacterEmpty && isTokenEmpty then
-                    True
-                else if isCharacterEmpty && not isTokenEmpty then
-                    True
-                else if not isCharacterEmpty && isTokenEmpty then
-                    False
-                else
-                    case currentToken of
-                        Just Input ->
-                            scanIsValid tailCharacters tailTokens
+            if isCharacterEmpty && isTokenEmpty then
+                True
 
-                        Just (Other other) ->
-                            currentCharacter
-                                |> Maybe.map ((==) other)
-                                |> Maybe.map
-                                    (\isMatch ->
-                                        if isMatch then
-                                            scanIsValid tailCharacters tailTokens
-                                        else
-                                            False
-                                    )
-                                |> Maybe.withDefault False
+            else if isCharacterEmpty && not isTokenEmpty then
+                True
 
-                        Nothing ->
-                            False
+            else if not isCharacterEmpty && isTokenEmpty then
+                False
+
+            else
+                case currentToken of
+                    Just Input ->
+                        scanIsValid tailCharacters tailTokens
+
+                    Just (Other other) ->
+                        currentCharacter
+                            |> Maybe.map ((==) other)
+                            |> Maybe.map
+                                (\isMatch ->
+                                    if isMatch then
+                                        scanIsValid tailCharacters tailTokens
+
+                                    else
+                                        False
+                                )
+                            |> Maybe.withDefault False
+
+                    Nothing ->
+                        False
     in
-        scanIsValid (String.toList value) tokens
+    scanIsValid (String.toList value) tokens
 
 
 type Adjustment
@@ -210,9 +211,9 @@ splitChanges changes =
                 Diff.Changed _ str ->
                     splitString (Diff.Changed "") str
     in
-        changes
-            |> List.map split
-            |> List.concat
+    changes
+        |> List.map split
+        |> List.concat
 
 
 isAdd : Diff.Change -> Bool
@@ -237,11 +238,12 @@ changesPairWithToken tokens previous current =
                     let
                         tokenIndex =
                             if List.length tokens < String.length previous then
-                                ((List.length tokens) - 1) - index
+                                (List.length tokens - 1) - index
+
                             else
-                                ((String.length previous) - 1) - index
+                                (String.length previous - 1) - index
                     in
-                        getAt tokenIndex tokens
+                    getAt tokenIndex tokens
 
         splittedChanges =
             Diff.diffChars previous current
@@ -254,13 +256,22 @@ changesPairWithToken tokens previous current =
             let
                 index =
                     results
-                        |> List.filter (\( _, change ) -> not (isAdd change))
+                        |> List.filter (\( _, change_ ) -> not (isAdd change_))
                         |> List.length
-                        |> (\length -> length)
             in
-                ( getToken index change, change ) :: results
+            ( getToken index change, change ) :: results
+
+        checkForLength changes =
+            if List.length changes > List.length tokens then
+                List.filter (\( a, change ) -> not (isAdd change)) changes
+
+            else
+                changes
     in
-        splittedChanges |> List.foldr toPair []
+    splittedChanges
+        |> List.foldr toPair []
+        |> checkForLength
+        |> List.take (List.length tokens)
 
 
 foldPairs : Adjustment -> List ( Maybe Token, Diff.Change ) -> String
@@ -275,6 +286,7 @@ foldPairs adjustment pairs =
         concat isLeft s str =
             if isLeft then
                 str ++ s
+
             else
                 s ++ str
 
@@ -283,6 +295,7 @@ foldPairs adjustment pairs =
                 ( Just (Other _), Diff.Removed s ) ->
                     if isLeft then
                         String.dropRight 1 str
+
                     else
                         String.dropLeft 1 str
 
@@ -319,12 +332,12 @@ foldPairs adjustment pairs =
                 ( Nothing, Diff.NoChange s ) ->
                     concat isLeft s str
     in
-        case adjustment of
-            Backspace ->
-                left
+    case adjustment of
+        Backspace ->
+            left
 
-            _ ->
-                right
+        _ ->
+            right
 
 
 changedString : Diff.Change -> String
@@ -353,5 +366,6 @@ getAt : Int -> List a -> Maybe a
 getAt idx xs =
     if idx < 0 then
         Nothing
+
     else
         List.head <| List.drop idx xs

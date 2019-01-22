@@ -13,7 +13,13 @@ allowedKeyCodes =
     , delete
     , tab
     , enter
+    , shift
     ]
+
+
+shift : Int
+shift =
+    16
 
 
 ctrl : Int

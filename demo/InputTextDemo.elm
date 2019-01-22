@@ -1,17 +1,17 @@
 module InputTextDemo exposing (main)
 
-import Html exposing (Html, text, p, label, form, ul, li)
-import Html.Attributes as Html exposing (style, for)
+import Browser
+import Html exposing (Html, form, label, li, p, text, ul)
+import Html.Attributes as Html exposing (for, style)
 import Input.Text as Text
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.sandbox
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -21,11 +21,9 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { value = "", hasFocus = False }
-    , Cmd.none
-    )
+    { value = "", hasFocus = False }
 
 
 inputOptions : Text.Options Msg
@@ -34,10 +32,10 @@ inputOptions =
         defaultOptions =
             Text.defaultOptions InputChanged
     in
-        { defaultOptions
-            | maxLength = Just 5
-            , hasFocus = Just FocusChanged
-        }
+    { defaultOptions
+        | maxLength = Just 5
+        , hasFocus = Just FocusChanged
+    }
 
 
 subscriptions : Model -> Sub Msg
@@ -59,9 +57,17 @@ view model =
             ]
         , p []
             [ ul []
-                [ li [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map toString <| inputOptions.maxLength ]
+                [ li [] [ text "Max Length: ", text <| Maybe.withDefault "No Limit" <| Maybe.map String.fromInt <| inputOptions.maxLength ]
                 , li [] [ text "Value: ", text model.value ]
-                , li [] [ text "Has Focus: ", text <| toString model.hasFocus ]
+                , li []
+                    [ text "Has Focus: "
+                    , text <|
+                        if model.hasFocus then
+                            "True"
+
+                        else
+                            "False"
+                    ]
                 ]
             ]
         ]
@@ -73,14 +79,14 @@ type Msg
     | FocusChanged Bool
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         InputChanged value ->
-            ( { model | value = value }, Cmd.none )
+            { model | value = value }
 
         FocusChanged bool ->
-            ( { model | hasFocus = bool }, Cmd.none )
+            { model | hasFocus = bool }

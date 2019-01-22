@@ -1,12 +1,7 @@
-module Input.Float
-    exposing
-        ( Options
-        , StringOptions
-        , defaultOptions
-        , defaultStringOptions
-        , input
-        , inputString
-        )
+module Input.Float exposing
+    ( StringOptions, Options, defaultStringOptions, defaultOptions
+    , input, inputString
+    )
 
 {-| Number input
 
@@ -24,8 +19,8 @@ module Input.Float
 
 import Char
 import Html exposing (Attribute, Html)
-import Html.Attributes as Attributes exposing (style, type_, value)
-import Html.Events exposing (keyCode, onWithOptions)
+import Html.Attributes as Attributes exposing (step, style, type_, value)
+import Html.Events exposing (keyCode, preventDefaultOn)
 import Input.Decoder exposing (eventDecoder)
 import Input.KeyCode exposing (allowedKeyCodes)
 import Json.Decode as Json
@@ -144,7 +139,7 @@ input : Options msg -> List (Attribute msg) -> Maybe Float -> Html msg
 input options attributes currentValue =
     let
         toArray =
-            flip (::) []
+            \a -> (::) a []
 
         onFocusAttribute =
             options.hasFocus
@@ -162,14 +157,14 @@ input options attributes currentValue =
 
         maxAttribute =
             options.maxValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromFloat
                 |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromFloat
                 |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
@@ -177,11 +172,11 @@ input options attributes currentValue =
     Html.input
         (List.append attributes
             [ currentValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromFloat
                 |> Maybe.withDefault ""
                 |> value
             , onKeyDown options currentValue
-            , Html.Events.onInput (String.toFloat >> Result.toMaybe >> options.onInput)
+            , Html.Events.onInput (String.toFloat >> options.onInput)
             , onChange options
             , type_ "number"
             ]
@@ -217,7 +212,7 @@ inputString : StringOptions msg -> List (Attribute msg) -> String -> Html msg
 inputString options attributes currentValue =
     let
         toArray =
-            flip (::) []
+            \a -> (::) a []
 
         onFocusAttribute =
             options.hasFocus
@@ -235,14 +230,14 @@ inputString options attributes currentValue =
 
         maxAttribute =
             options.maxValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromFloat
                 |> Maybe.map Attributes.max
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
 
         minAttribute =
             options.minValue
-                |> Maybe.map toString
+                |> Maybe.map String.fromFloat
                 |> Maybe.map Attributes.min
                 |> Maybe.map toArray
                 |> Maybe.withDefault []
@@ -255,6 +250,7 @@ inputString options attributes currentValue =
             , Html.Events.onInput options.onInput
             , onChangeString options
             , type_ "number"
+            , step "0.01"
             ]
             |> List.append onFocusAttribute
             |> List.append onBlurAttribute
@@ -272,64 +268,11 @@ filterNonDigit value =
 onKeyDownString : StringOptions msg -> String -> Attribute msg
 onKeyDownString options currentValue =
     let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
         newValue keyCode =
             keyCode
                 |> Char.fromCode
                 |> String.fromChar
                 |> (++) currentValue
-
-        isNumPad keyCode =
-            keyCode
-                >= 96
-                && keyCode
-                <= 105
-
-        isNumber keyCode =
-            keyCode
-                >= 48
-                && keyCode
-                <= 57
-
-        filterKey =
-            \event ->
-                if event.ctrlKey || event.altKey || event.metaKey then
-                    Json.fail "modifier key is pressed"
-                else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "allowedKeys"
-                else if
-                    (isNumber event.keyCode || isNumPad event.keyCode)
-                        && isValid (newValue event.keyCode) options
-                then
-                    Json.fail "numeric"
-                else
-                    Json.succeed event.keyCode
-
-        decoder =
-            eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> options.onInput currentValue)
-    in
-    onWithOptions "keydown" eventOptions decoder
-
-
-onKeyDown : Options msg -> Maybe Float -> Attribute msg
-onKeyDown options currentValue =
-    let
-        eventOptions =
-            { stopPropagation = False
-            , preventDefault = True
-            }
-
-        newValue keyCode =
-            keyCode
-                |> Char.fromCode
-                |> String.fromChar
-                |> (++) (Maybe.withDefault "" <| Maybe.map toString <| currentValue)
 
         isNumPad keyCode =
             keyCode
@@ -349,23 +292,79 @@ onKeyDown options currentValue =
         filterKey =
             \event ->
                 if event.ctrlKey || event.altKey || event.metaKey then
-                    Json.fail "modifier key is pressed"
+                    ( options.onInput currentValue, False )
+
+                else if event.shiftKey then
+                    ( options.onInput currentValue, True )
+
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
-                    Json.fail "allowedKeys"
+                    ( options.onInput currentValue, False )
+
                 else if
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    Json.fail "numeric"
+                    ( options.onInput (newValue event.keyCode), False )
+
                 else
-                    Json.succeed event.keyCode
+                    ( options.onInput currentValue, True )
 
         decoder =
             eventDecoder
-                |> Json.andThen filterKey
-                |> Json.map (\_ -> options.onInput currentValue)
+                |> Json.map filterKey
     in
-    onWithOptions "keydown" eventOptions decoder
+    preventDefaultOn "keydown" decoder
+
+
+onKeyDown : Options msg -> Maybe Float -> Attribute msg
+onKeyDown options currentValue =
+    let
+        newValue keyCode =
+            keyCode
+                |> Char.fromCode
+                |> String.fromChar
+                |> (++) (Maybe.withDefault "" <| Maybe.map String.fromFloat <| currentValue)
+
+        isNumPad keyCode =
+            keyCode
+                >= 96
+                && keyCode
+                <= 105
+
+        isNumber keyCode =
+            (keyCode
+                >= 48
+                && keyCode
+                <= 57
+            )
+                || keyCode
+                == 190
+
+        filterKey =
+            \event ->
+                if event.ctrlKey || event.altKey || event.metaKey then
+                    ( options.onInput currentValue, False )
+
+                else if event.shiftKey then
+                    ( options.onInput currentValue, True )
+
+                else if List.any ((==) event.keyCode) allowedKeyCodes then
+                    ( options.onInput currentValue, False )
+
+                else if
+                    (isNumber event.keyCode || isNumPad event.keyCode)
+                        && isValid (newValue event.keyCode) options
+                then
+                    ( options.onInput (newValue event.keyCode |> String.toFloat), False )
+
+                else
+                    ( options.onInput currentValue, True )
+
+        decoder =
+            eventDecoder
+                |> Json.map filterKey
+    in
+    preventDefaultOn "keydown" decoder
 
 
 isValid : String -> GenericOptions a -> Bool
@@ -374,7 +373,6 @@ isValid newValue options =
         updatedNumber =
             newValue
                 |> String.toFloat
-                |> Result.toMaybe
     in
     not (exceedMaxValue options.maxValue updatedNumber)
 
@@ -385,19 +383,20 @@ onChange options =
         checkWithMinValue number =
             if lessThanMinValue options.minValue number then
                 options.minValue
+
             else
                 number
 
         checkWithMaxValue number =
             if exceedMaxValue options.maxValue number then
                 options.maxValue
+
             else
                 number
 
         toFloat string =
             string
                 |> String.toFloat
-                |> Result.toMaybe
                 |> checkWithMinValue
                 |> checkWithMaxValue
     in
@@ -406,7 +405,8 @@ onChange options =
 
 leadingZeroRegex : Regex.Regex
 leadingZeroRegex =
-    Regex.regex "0*"
+    Regex.fromString "0*"
+        |> Maybe.withDefault Regex.never
 
 
 onChangeString : StringOptions msg -> Html.Attribute msg
@@ -415,17 +415,19 @@ onChangeString options =
         checkWithMinValue number =
             if lessThanMinValue options.minValue number then
                 options.minValue
+
             else
                 number
 
         checkWithMaxValue number =
             if exceedMaxValue options.maxValue number then
                 options.maxValue
+
             else
                 number
 
         leadingZero string =
-            Regex.find (Regex.AtMost 1) leadingZeroRegex string
+            Regex.findAtMost 1 leadingZeroRegex string
                 |> List.head
                 |> Maybe.map .match
                 |> Maybe.withDefault ""
@@ -433,24 +435,23 @@ onChangeString options =
         toFloat string =
             string
                 |> String.toFloat
-                |> Result.toMaybe
                 |> checkWithMinValue
                 |> checkWithMaxValue
-                |> toString
-                |> flip (++) (leadingZero string)
+                |> Maybe.map String.fromFloat
+                |> Maybe.map (\a -> (++) a (leadingZero string))
     in
     Html.Events.on "change" (Json.map options.onInput Html.Events.targetValue)
 
 
 lessThanMinValue : Maybe Float -> Maybe Float -> Bool
-lessThanMinValue minValue number =
-    number
+lessThanMinValue minValue maybeNumber =
+    maybeNumber
         |> Maybe.map2 (\min number -> number < min) minValue
         |> Maybe.withDefault False
 
 
 exceedMaxValue : Maybe Float -> Maybe Float -> Bool
-exceedMaxValue maxValue number =
-    number
+exceedMaxValue maxValue maybeNumber =
+    maybeNumber
         |> Maybe.map2 (\max number -> number > max) maxValue
         |> Maybe.withDefault False
