@@ -140,7 +140,7 @@ onKeyDown options currentValue =
                     ( options.onInput currentValue, False )
 
                 else if event.shiftKey then
-                    ( options.onInput currentValue, True )
+                    ( options.onInput currentValue, False )
 
                 else if List.any ((==) event.keyCode) allowedKeyCodes then
                     ( options.onInput currentValue, False )
