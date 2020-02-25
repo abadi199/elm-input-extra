@@ -104,18 +104,36 @@ selectedOptionsDecoder =
         |> Decode.map filterSelected
 
 
+
+{- |
+   To allow for large multi selects the length is first retrieved in a IE safe way.
+   Then a method that compiles to a JS loop is used to retrieve the options.
+-}
+
+
 optionsDecoder : Decode.Decoder (List Option)
 optionsDecoder =
-    let
-        loop idx xs =
-            Decode.maybe (Decode.field (String.fromInt idx) optionDecoder)
-                |> Decode.andThen
-                    (Maybe.map (\x -> loop (idx + 1) (x :: xs))
-                        >> Maybe.withDefault (Decode.succeed xs)
-                    )
-    in
-    (Decode.field "options" <| loop 0 [])
-        |> Decode.map List.reverse
+    Decode.field "options"
+        (Decode.keyValuePairs (Decode.maybe optionDecoder)
+            |> Decode.andThen
+                (\list ->
+                    let
+                        onlySuccess =
+                            List.foldr
+                                (\( _, next ) sofar ->
+                                    case next of
+                                        Nothing ->
+                                            sofar
+
+                                        Just x ->
+                                            x :: sofar
+                                )
+                                []
+                                list
+                    in
+                        Decode.succeed onlySuccess
+                )
+        )
 
 
 type alias Option =
