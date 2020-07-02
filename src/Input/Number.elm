@@ -357,7 +357,7 @@ onKeyDown options currentValue =
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    ( options.onInput (String.toInt <| newValue event.keyCode), False )
+                    ( options.onInput (String.toInt <| newValue event.keyCode), True)
 
                 else
                     ( options.onInput currentValue, True )
