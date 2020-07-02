@@ -309,7 +309,7 @@ onKeyDownString options currentValue =
                     (isNumber event.keyCode || isNumPad event.keyCode)
                         && isValid (newValue event.keyCode) options
                 then
-                    ( options.onInput (newValue event.keyCode), False )
+                    ( options.onInput (newValue event.keyCode), True)
 
                 else
                     ( options.onInput currentValue, True )
