@@ -186,7 +186,7 @@ splitChangesTest =
     describe "Pattern.splitChanges"
         [ test "Changes from (123) to (123A)" <|
             \() ->
-                Pattern.splitChanges (Diff.diffChars "(123)" "(123A)")
+                Pattern.splitChanges (Diff.diff (String.split "" "(123)") (String.split "" "(123A)"))
                     |> Expect.equal
                         [ Diff.NoChange "("
                         , Diff.NoChange "1"
@@ -197,7 +197,7 @@ splitChangesTest =
                         ]
         , test "Changes from (123) to (13)" <|
             \() ->
-                Pattern.splitChanges (Diff.diffChars "(123)" "(13)")
+                Pattern.splitChanges (Diff.diff (String.split "" "(123)") (String.split "" "(13)"))
                     |> Expect.equal
                         [ Diff.NoChange "("
                         , Diff.NoChange "1"
