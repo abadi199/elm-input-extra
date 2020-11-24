@@ -3,7 +3,7 @@
     "name": "abadi199/elm-input-extra",
     "summary": "Commonly used Html element with extra functionality",
     "license": "BSD-3-Clause",
-    "version": "5.2.3",
+    "version": "5.2.5",
     "exposed-modules": [
         "Input.Number",
         "Input.BigNumber",
