@@ -14,6 +14,7 @@ allowedKeyCodes =
     , tab
     , enter
     , shift
+    , capsLock
     ]
 
 
@@ -70,3 +71,8 @@ rightArrow =
 downArrow : Int
 downArrow =
     40
+
+
+capsLock : Int
+capsLock =
+    20
