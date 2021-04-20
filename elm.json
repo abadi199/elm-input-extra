@@ -3,7 +3,7 @@
     "name": "abadi199/elm-input-extra",
     "summary": "Commonly used Html element with extra functionality",
     "license": "BSD-3-Clause",
-    "version": "5.2.5",
+    "version": "5.2.6",
     "exposed-modules": [
         "Input.Number",
         "Input.BigNumber",
@@ -19,8 +19,6 @@
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.0.0 <= v < 2.0.0",
         "elm/regex": "1.0.0 <= v < 2.0.0",
-        "elm/svg": "1.0.0 <= v < 2.0.0",
-        "elm-community/list-extra": "8.0.0 <= v < 9.0.0",
         "jinjor/elm-diff": "1.0.6 <= v < 2.0.0"
     },
     "test-dependencies": {
